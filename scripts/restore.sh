@@ -5,14 +5,16 @@
 #   export S3_ENDPOINT=https://<account>.r2.cloudflarestorage.com  S3_BUCKET=photos  S3_PREFIX=iphone
 #   export AWS_DEFAULT_REGION=auto        # R2; use the bucket region for AWS
 #
-#   scripts/restore.sh list                     # snapshots, newest last, with completion status
-#   scripts/restore.sh latest ./restore         # download the newest complete snapshot
+#   scripts/restore.sh library ./restore        # delta sync: download the library/ folder
+#   scripts/restore.sh list                     # full copies: snapshots, newest last, with status
+#   scripts/restore.sh latest ./restore         # full copies: download the newest complete snapshot
 #   scripts/restore.sh get 20260929T020000Z ./restore
 set -euo pipefail
 
 : "${S3_ENDPOINT:?set S3_ENDPOINT}" "${S3_BUCKET:?set S3_BUCKET}"
 PREFIX="${S3_PREFIX:-}"
-ROOT="${PREFIX:+${PREFIX%/}/}snapshots/"
+BASE="${PREFIX:+${PREFIX%/}/}"
+ROOT="${BASE}snapshots/"
 aws_s3() { aws --endpoint-url "$S3_ENDPOINT" "$@"; }
 
 snapshots() {
@@ -25,6 +27,9 @@ is_complete() {
 }
 
 case "${1:-}" in
+  library)
+    dest="${2:?destination folder}"
+    aws_s3 s3 sync "s3://$S3_BUCKET/${BASE}library/" "$dest/" ;;
   list)
     for id in $(snapshots); do
       if is_complete "$id"; then echo "$id complete"; else echo "$id incomplete"; fi
@@ -39,5 +44,5 @@ case "${1:-}" in
     id="${2:?snapshot id}"; dest="${3:?destination folder}"
     aws_s3 s3 sync "s3://$S3_BUCKET/${ROOT}$id/" "$dest/$id/" ;;
   *)
-    sed -n '2,12p' "$0"; exit 1 ;;
+    sed -n '2,13p' "$0"; exit 1 ;;
 esac

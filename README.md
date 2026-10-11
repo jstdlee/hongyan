@@ -1,199 +1,184 @@
-# Hongyan
+# Hongyan 鸿雁
 
-[![Release](https://img.shields.io/github/v/release/jstdlee/hongyan)](https://github.com/jstdlee/hongyan/releases/latest)
+**Back up your iPhone photo library to your own S3 or Cloudflare R2 bucket, in the background.**
 
-A small iOS app (Swift, iOS 26.1+) that backs up the whole photo library to
-S3-compatible storage, such as Cloudflare R2, AWS S3, MinIO or Backblaze B2, **in the background**.
+[![Release](https://img.shields.io/github/v/release/jstdlee/hongyan?label=release)](https://github.com/jstdlee/hongyan/releases/latest)
+![iOS 26.1+](https://img.shields.io/badge/iOS-26.1%2B-black)
+![Swift](https://img.shields.io/badge/Swift-SwiftUI-orange)
+![Storage](https://img.shields.io/badge/storage-R2%20%C2%B7%20S3%20%C2%B7%20MinIO%20%C2%B7%20B2-blue)
 
-- **Delta sync** (default): one folder, `library/`; each sync uploads only new and edited photos.
-  The progress is recorded locally and in the bucket, verified at the start of each sync, and
-  continues after an interruption, a reinstall or on a new phone.
-- **Full copies** (optional): a complete snapshot of the library under `snapshots/<timestamp>/`.
-- **Every N days**: iOS schedules the work, usually while charging on Wi-Fi.
-- **Keep latest X** (full copies): older snapshots are deleted automatically.
-- **Keep running** (optional): silent audio or location keeps the app awake during a backup, and the
-  app uploads by itself. For sideloaded builds; Apple does not allow it in App Store apps.
-- **No encryption** and no third-party dependencies. The app uses only Apple frameworks.
+<p>
+  <img src="docs/gallery/1-backing-up.png" width="24%" alt="Backing up">
+  <img src="docs/gallery/3-settings.png" width="24%" alt="Settings">
+  <img src="docs/gallery/4-help.png" width="24%" alt="Help">
+  <img src="docs/gallery/5-dark.png" width="24%" alt="Dark mode">
+</p>
+
+- **Your storage.** Photos go to your own bucket: Cloudflare R2, AWS S3, MinIO, Backblaze B2 or any S3-compatible service.
+- **In the background.** iOS uploads the photos for the app, also when it is closed or the phone is locked.
+- **Delta sync.** Each sync uploads only new and edited photos into one folder.
+- **Never lost.** The sync progress is recorded on the phone and in the bucket. Each sync checks the bucket first, uploads missing files again, and continues where it stopped, also after a reinstall or on a new phone.
+- **Full copies, if you prefer.** A complete snapshot every N days; keep the latest X.
+- **Simple and native.** One status screen, settings that save as you type, SF Symbols, haptics, VoiceOver, light and dark mode. English, 简体中文, 日本語 and 한국어.
+- **No third-party code.** Apple frameworks only. No accounts, no tracking.
 
 ## The name
 
-**Hongyan 鸿雁** is the wild goose of the old saying 鸿雁传书, "the goose carries the letter".
-Su Wu, a Han envoy, was held by the Xiongnu for 19 years. A Han envoy then said that the
-emperor had shot a goose with a letter from Su Wu on its foot, and the Xiongnu let Su Wu go home.
+**鸿雁传书 — the goose carries the letter.** Su Wu, a Han envoy, was held by the Xiongnu for 19 years.
+Then a Han envoy said that the emperor had shot a wild goose with a letter from Su Wu on its foot,
+and the Xiongnu let Su Wu go home.
 
-Geese fly far, in their season and in order, and they arrive. Hongyan carries your photos the
-same way:
-
-| The goose | The app |
+| The goose | Hongyan |
 |---|---|
-| carries the letter | carries your photos to your own storage |
-| flies in its season | iOS picks the time; every N days |
-| flies in order, the flock stays together | full snapshots, keep the latest X |
-| always arrives | failed files are sent again with a fresh URL |
-
-Hongyan was called Shoebox before v0.3.0.
-
-## Gallery
-
-Screenshots come from the app's demo mode (`scripts/mac.sh shots`).
-
-| Backing up | Up to date | Settings |
-|---|---|---|
-| ![Backing up](docs/gallery/1-backing-up.png) | ![Up to date](docs/gallery/2-up-to-date.png) | ![Settings](docs/gallery/3-settings.png) |
-| **Help** | **Dark mode** | **First run (日本語)** |
-| ![Help](docs/gallery/4-help.png) | ![Dark](docs/gallery/5-dark.png) | ![Japanese](docs/gallery/6-japanese.png) |
-
-The app follows Apple's iOS patterns: a large-title status screen with the main action in thumb
-reach, settings one tap away, SF Symbols, Dynamic Type, haptics, VoiceOver labels, and
-English, 简体中文, 日本語 and 한국어.
-
-## Download
-
-Get the newest IPA from the [release page](https://github.com/jstdlee/hongyan/releases/latest).
-The release page also has the release notes. All versions are in [CHANGELOG.md](CHANGELOG.md).
-
-- The IPA is **unsigned**. Sign and install it with your own Apple ID (Sideloadly, AltStore),
-  or build from source (below).
-- The upload address is fixed when the app is built. The release page says which address the
-  IPA has. For your own endpoint, build from source.
-
-To make a release: add a `## vX.Y.Z — date` section to `CHANGELOG.md`, commit, then on a Mac:
-
-```bash
-scripts/mac.sh release vX.Y.Z
-```
+| carries the letter far away | carries your photos to your own storage |
+| flies in its season | iOS picks the time, every N days |
+| flies in order, the flock stays together | one library folder with an index |
+| always arrives | missing and failed files are sent again |
 
 ## How it works
 
-Uploads use PhotoKit's **Background Resource Upload extension** (iOS 26.1). The app
-never reads photo bytes itself. It tells iOS "upload this resource to this URL", and
-the system does the transfer when conditions allow, even with the app closed or the
-phone locked. Each upload URL is an S3 **presigned PUT**, valid for up to 7 days.
-
 ```
-iOS wakes extension ─┐       ┌─ app opened / Back up now / BG refresh
-                     ▼       ▼
-             BackupEngine.run()  (one bounded pass, file-locked)
-   1. acknowledge finished jobs → record uploaded / retry / failed
-   2. no active snapshot and due? → freeze asset list (plan)
-   3. create presigned-PUT jobs up to PHAssetResourceUploadJob.jobLimit
-   4. all done → PUT manifest.json (marks the snapshot complete)
-   5. delete snapshots beyond "keep latest"
+ iPhone                                                   your bucket
+┌───────────────────────────────┐   presigned PUT    ┌──────────────────────────────┐
+│ Photos library                │ ─────────────────▶ │ <prefix>/library/2026/09/…   │
+│   │                           │   iOS upload       │ <prefix>/.hongyan/index.json │
+│   ▼                           │   service          │ <prefix>/.hongyan/rounds/…   │
+│ Hongyan engine ── jobs ──▶ iOS│                    └──────────────────────────────┘
+│ (app or upload extension)     │
+└───────────────────────────────┘
 ```
 
-Bucket layout:
+The app never reads photo bytes for normal backups. It gives iOS a list of upload jobs: "send this photo
+to this URL". iOS does the transfers when the network and battery allow. Each URL is an S3 presigned PUT,
+valid for up to 7 days; a job that waits longer is created again with a fresh URL.
+
+**Each delta sync**
 
 ```
-Sync changes (default)
-<prefix>/library/2026/09/IMG_1234_1a2b3c4d.HEIC        one folder, only new and edited files
-<prefix>/library/2026/09/IMG_1234_1a2b3c4d.MOV         (Live Photo)
-<prefix>/.hongyan/index.json                            file → photo version (the sync progress)
-<prefix>/.hongyan/rounds/20260929T020000Z.json          what each sync uploaded
-
-Full copies
-<prefix>/snapshots/20260929T020000Z/manifest.json
-<prefix>/snapshots/20260929T020000Z/2026/09/IMG_1234_1a2b3c4d.HEIC
+1. read the index        local copy, or .hongyan/index.json from the bucket
+2. verify                list library/ → forget files that are gone, so they upload again
+3. walk the photos       same version → skip · in the bucket but not in the index → record
+                         new or edited → upload
+4. checkpoint            index to the bucket every 500 files
+5. finish                index.json + a record of the sync in .hongyan/rounds/
 ```
 
-Each delta sync:
+File names stay stable: `IMG_1234_1a2b3c4d.HEIC`, where the suffix is a hash of the photo's library ID.
+An edited photo replaces its own file. Photos deleted on the phone stay in the bucket.
+
+**Bucket layout**
 
 ```
-read index (local, else .hongyan/index.json) ─▶ list library/ ─▶ drop entries whose file is gone
-  ─▶ walk the photos: same version in index → skip · file in bucket, not in index → record
-                      new or edited → upload ─▶ index to bucket every 500 files ─▶ index + round record
+Sync changes (default)                                   Full copies
+<prefix>/library/2026/09/IMG_1234_1a2b3c4d.HEIC          <prefix>/snapshots/20260929T020000Z/manifest.json
+<prefix>/library/2026/09/IMG_1234_1a2b3c4d.MOV           <prefix>/snapshots/20260929T020000Z/2026/09/…
+<prefix>/.hongyan/index.json
+<prefix>/.hongyan/rounds/20260929T020000Z.json
 ```
 
-The suffix is a hash of the photo's library ID. It keeps each file name stable across
-snapshots and prevents `IMG_0001` collisions.
+**Keep running (optional).** Settings › Keep running keeps the app awake during a backup with silent
+audio or coarse location, and the app uploads by itself. Use it when iOS doesn't schedule the upload
+extension. It costs battery, and Apple doesn't allow it in App Store apps.
 
-## Layout
+## Install
 
-```
-HongyanCore/                  Swift package: logic without PhotoKit
-  Sources/HongyanCore/S3/     SigV4, S3 client, XML, config
-  Sources/HongyanCore/Backup/ engine, key layout, schedule, retention, state files
-  Tests/HongyanCoreTests/     149 XCTests (AWS SigV4 vectors, engine scenarios with fakes)
-iOS/Shared/                   PhotoKit adapters, Keychain/App Group settings, engine factory
-iOS/UploadExtension/          PHBackgroundResourceUploadExtension entry point
-iOS/App/                      SwiftUI app (one settings/status screen)
-project.yml                   XcodeGen project (app + extension + package)
-scripts/mac.sh                Mac: setup, test, build, screenshots, IPA, release
-.github/workflows/            CI and release (disabled; same steps as scripts/mac.sh)
-CHANGELOG.md                  release notes, one section per version
-scripts/pick-simulator.sh     CI: choose an iPhone simulator
-scripts/screenshots.sh        CI: demo-mode screenshots for the gallery
-scripts/restore.sh            list / download snapshots with the AWS CLI
-docs/TEST_PLAN.md             automated coverage + on-device scenarios
-```
+1. Download the IPA from the [release page](https://github.com/jstdlee/hongyan/releases/latest).
+2. Sign and install it with your own Apple ID, for example with [Sideloadly](https://sideloadly.io)
+   or [AltStore](https://altstore.io). On the iPhone, turn on **Settings › Privacy & Security › Developer Mode**,
+   then trust your Apple ID in **Settings › General › VPN & Device Management**.
+3. Open Hongyan, add your storage, tap **Test connection**, then **Turn on background backup**.
 
-## Build, test and release on a Mac
+Limits of a release IPA:
+- It uploads only under the address it was built with (Apple's `BackgroundUploadURLBase`). The release
+  page names it. For your own endpoint, build from source.
+- A free Apple ID signs for 7 days, and may drop the App Group that background backup needs.
+  For full background support, build in Xcode with your own developer team.
 
-GitHub Actions is turned off (quota). Everything runs on a Mac with Xcode 26.1+ through one script:
+To look around without storage, turn on **Help › Demo › Show sample data**.
 
-```
-scripts/mac.sh setup          → xcodegen + xcbeautify, generate Hongyan.xcodeproj
-scripts/mac.sh test           → 177 HongyanCore tests on an iPhone Simulator
-scripts/mac.sh r2test         → the same engine against a real R2 bucket (HONGYAN_IT_* env)
-scripts/mac.sh build          → app + extension for Simulator and device (unsigned)
-scripts/mac.sh shots          → demo-mode screenshots into docs/gallery
-scripts/mac.sh release v0.3.0 → tests, unsigned IPA, tag, release page with notes from CHANGELOG.md
-```
+## Set up Cloudflare R2
 
-```bash
-scripts/mac.sh all
-```
+1. In the Cloudflare dashboard, open **R2** and create a bucket, for example `photos`.
+2. Open **R2 › Manage API tokens** and create a token with **Object Read & Write**, scoped to that bucket.
+3. In Hongyan › Settings › Storage, enter:
 
-To see demo mode, launch the app with `-demo active`, `idle`, `settings`, `help` or `setup`,
-or turn on Help › Demo › Show sample data.
-
-The workflows in `.github/workflows/` are kept but disabled. Turn them on again with
-`gh workflow enable ci.yml` and `gh workflow enable release.yml`.
-
-## Build the app (Mac, Xcode 26.1+)
-
-1. Edit `project.yml`:
-   - `HONGYAN_BUNDLE_ID`: your bundle id.
-   - `HONGYAN_UPLOAD_URL_BASE`: your endpoint, e.g. `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`.
-     Apple requires this in the extension's Info.plist, and uploads outside it are refused.
-   - `DEVELOPMENT_TEAM`.
-2. `brew install xcodegen && xcodegen generate && open Hongyan.xcodeproj`
-3. In the Apple Developer portal, register the App Group `group.<bundle id>` for both
-   the app and `<bundle id>.upload`. Xcode's automatic signing usually does this for you.
-4. Run on a **real device**. The extension does not run in the Simulator.
-5. In the app: fill in the storage fields, tap **Test connection**, **Save**, then
-   **Turn on background backup** (full photo access), then **Back up now**.
-
-If XcodeGen can't create the ExtensionKit target, add it by hand: File → New →
-Target → Generic Extension named `HongyanUpload`. Add `iOS/UploadExtension` and
-`iOS/Shared`, and set these Info.plist keys: `EXAppExtensionAttributes.EXExtensionPointIdentifier =
-com.apple.photos.background-upload`, `BackgroundUploadURLBase`, `HongyanAppGroup`,
-`HongyanKeychainGroup`. Use the same App Group and Keychain group entitlements as the app.
-
-### Cloudflare R2 setup
-
-- R2 → Create bucket (e.g. `photos`).
-- R2 → Manage API tokens → **Object Read & Write**, scoped to that bucket.
-- Endpoint `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`, region `auto`, path style on.
+| Field | Value |
+|---|---|
+| Endpoint | `https://<ACCOUNT_ID>.r2.cloudflarestorage.com` |
+| Region | `auto` |
+| Bucket | `photos` |
+| Folder | optional, for example `iphone` |
+| Path-style URLs | on |
+| Access key / Secret | from the token |
 
 ## Restore
 
+Your photos are plain files in your bucket. Use any S3 tool, or the script with the AWS CLI:
+
 ```bash
-export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... AWS_DEFAULT_REGION=auto
+export AWS_ACCESS_KEY_ID=… AWS_SECRET_ACCESS_KEY=… AWS_DEFAULT_REGION=auto
 export S3_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com S3_BUCKET=photos S3_PREFIX=iphone
-scripts/restore.sh list
-scripts/restore.sh latest ./restore
+scripts/restore.sh library ./restore      # delta sync
+scripts/restore.sh latest ./restore       # full copies: newest complete snapshot
 ```
 
-## Known limits and risks
+## Build from source
 
-- **iOS decides when uploads run.** "Every N days" means "not before N days", not an exact time.
-- **iCloud Photos:** there is a developer-forum report that the extension is never scheduled
-  when iCloud Photos is on. Test this first (TEST_PLAN C9).
-- **Files over 5 GiB** (long 4K videos) exceed S3's single-PUT limit, so they fail and are listed
-  in the manifest. Multipart upload isn't possible through the system uploader.
-- **Full backups re-upload everything each time**, so storage grows by about library size × keep latest.
-- **The endpoint is fixed per build** (`BackgroundUploadURLBase`).
-- **iOS 27** replaces the extension protocol with an async one. 26.1's still works but is
-  deprecated; see the comment in `HongyanUploadExtension.swift`.
-- CI proves that the app compiles and the core logic works. It can't prove background uploads:
-  the extension doesn't run in the Simulator. Use `docs/TEST_PLAN.md` on a real iPhone.
+You need a Mac with Xcode 26.1+ and a real iPhone. The upload extension doesn't run in the Simulator.
+
+1. In `project.yml`, set `HONGYAN_BUNDLE_ID`, `HONGYAN_UPLOAD_URL_BASE` (your endpoint) and `DEVELOPMENT_TEAM`.
+2. Run the script:
+
+```bash
+scripts/mac.sh all            # setup, tests, build, screenshots
+open Hongyan.xcodeproj        # sign with your team, run on your iPhone
+```
+
+| Command | What it does |
+|---|---|
+| `scripts/mac.sh setup` | Installs XcodeGen and xcbeautify, generates `Hongyan.xcodeproj` |
+| `scripts/mac.sh test` | Runs the 177 HongyanCore tests on an iPhone Simulator |
+| `scripts/mac.sh r2test` | Runs the engine against a real bucket (`HONGYAN_IT_*` variables) |
+| `scripts/mac.sh build` | Builds the app and extension for the Simulator and a device |
+| `scripts/mac.sh shots` | Takes the gallery screenshots in demo mode |
+| `scripts/mac.sh release vX.Y.Z` | Tests, unsigned IPA, tag, release page with notes from `CHANGELOG.md` |
+
+GitHub Actions workflows are in `.github/workflows/`. They do the same steps and are turned off.
+
+## Project layout
+
+```
+HongyanCore/         Swift package with the logic that doesn't need PhotoKit
+  Sources/…/S3/      SigV4 signing, S3 client, XML parsing, endpoint config
+  Sources/…/Backup/  engine, delta sync, key layout, schedule, retention, state files
+  Tests/             177 tests: AWS SigV4 vectors, engine scenarios with fakes, real-bucket tests
+iOS/App/             SwiftUI app: status, settings, help, keep running, direct uploads
+iOS/UploadExtension/ PhotoKit background upload extension
+iOS/Shared/          PhotoKit adapters, Keychain and App Group settings, engine factory
+project.yml          XcodeGen project: app + extension + package
+scripts/             mac.sh, restore.sh, screenshots.sh, pick-simulator.sh
+docs/                TEST_PLAN.md (on-device scenarios), r2-test-run.md, gallery
+```
+
+## Tested
+
+- **177 unit tests** for the core: SigV4 against AWS's published vectors, S3 requests, file names,
+  schedule, retention, state files, and the engine in both modes with fake PhotoKit and a fake bucket.
+- **Real Cloudflare R2** ([run log](docs/r2-test-run.md)): first sync, no changes, new and edited photos,
+  a file deleted in the bucket, wiped local state, lost index, an interrupted sync, and full copies with
+  retention. All passed, with no duplicate uploads.
+- **Not yet on a real iPhone.** PhotoKit, iOS's upload service and the screens need a device;
+  [docs/TEST_PLAN.md](docs/TEST_PLAN.md) lists the scenarios.
+
+## Known limits
+
+- iOS decides when uploads run. "Every N days" means "not before N days".
+- A developer-forum report says iOS doesn't run the upload extension when iCloud Photos is on.
+  Keep running is the fallback; test this first.
+- Files over 5 GiB, such as long 4K videos, fail: S3 accepts at most 5 GiB in one upload.
+- The upload address is fixed per build.
+- iOS 27 replaces the extension protocol with an async one; the iOS 26.1 protocol still works.
+
+## History
+
+Hongyan was called Shoebox before v0.3.0. All changes are in [CHANGELOG.md](CHANGELOG.md).

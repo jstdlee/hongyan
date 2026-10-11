@@ -2,10 +2,10 @@
 
 Two layers:
 
-1. **Automated (GitHub Actions, iOS Simulator):** 149 XCTest cases over
+1. **Automated (`scripts/mac.sh test`, iOS Simulator):** 154 XCTest cases over
    HongyanCore: SigV4 (AWS published vectors), S3 client, key layout, schedule,
    retention, state files, and the full backup engine with fake PhotoKit, fake job
-   system and fake bucket. CI also builds the app and extension for Simulator and device.
+   system and fake bucket. `scripts/mac.sh build` also builds the app and extension for Simulator and device.
 2. **On device (later):** the scenarios below. These cover what can't be faked:
    PhotoKit, the background upload extension, iOS scheduling and real providers.
 

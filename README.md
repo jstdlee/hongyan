@@ -1,6 +1,5 @@
 # Hongyan
 
-[![CI](https://github.com/jstdlee/hongyan/actions/workflows/ci.yml/badge.svg)](https://github.com/jstdlee/hongyan/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/jstdlee/hongyan)](https://github.com/jstdlee/hongyan/releases/latest)
 
 A small iOS app (Swift, iOS 26.1+) that backs up the whole photo library to
@@ -34,7 +33,7 @@ Hongyan was called Shoebox before v0.3.0.
 
 ## Gallery
 
-Screenshots come from the app's demo mode. CI makes them again on every push to `main`.
+Screenshots come from the app's demo mode (`scripts/mac.sh shots`).
 
 | Backing up | Up to date | Settings |
 |---|---|---|
@@ -56,10 +55,10 @@ The release page also has the release notes. All versions are in [CHANGELOG.md](
 - The upload address is fixed when the app is built. The release page says which address the
   IPA has. For your own endpoint, build from source.
 
-To make a release: add a `## vX.Y.Z — date` section to `CHANGELOG.md`, then push the tag:
+To make a release: add a `## vX.Y.Z — date` section to `CHANGELOG.md`, commit, then on a Mac:
 
 ```bash
-git tag v0.1.1 && git push origin v0.1.1
+scripts/mac.sh release vX.Y.Z
 ```
 
 ## How it works
@@ -103,8 +102,8 @@ iOS/Shared/                   PhotoKit adapters, Keychain/App Group settings, en
 iOS/UploadExtension/          PHBackgroundResourceUploadExtension entry point
 iOS/App/                      SwiftUI app (one settings/status screen)
 project.yml                   XcodeGen project (app + extension + package)
-.github/workflows/ci.yml      tests, Simulator + device builds, gallery screenshots
-.github/workflows/release.yml tag → tests, unsigned IPA, release page with notes
+scripts/mac.sh                Mac: setup, test, build, screenshots, IPA, release
+.github/workflows/            CI and release (disabled; same steps as scripts/mac.sh)
 CHANGELOG.md                  release notes, one section per version
 scripts/pick-simulator.sh     CI: choose an iPhone simulator
 scripts/screenshots.sh        CI: demo-mode screenshots for the gallery
@@ -112,23 +111,27 @@ scripts/restore.sh            list / download snapshots with the AWS CLI
 docs/TEST_PLAN.md             automated coverage + on-device scenarios
 ```
 
-## CI
+## Build, test and release on a Mac
 
-GitHub Actions (`macos-26`, newest Xcode) does these steps on every push and pull request:
+GitHub Actions is turned off (quota). Everything runs on a Mac with Xcode 26.1+ through one script:
 
-1. Run the HongyanCore tests on an iPhone Simulator.
-2. Generate the Xcode project with XcodeGen.
-3. Build the app and the upload extension for the Simulator and for a device (unsigned).
-4. Take the gallery screenshots in demo mode. On `main`, commit them when they change.
-
-To run the tests on a Mac:
-
-```bash
-cd HongyanCore
-xcodebuild test -scheme HongyanCore -destination 'platform=iOS Simulator,name=iPhone 17'
+```
+scripts/mac.sh setup          → xcodegen + xcbeautify, generate Hongyan.xcodeproj
+scripts/mac.sh test           → 154 HongyanCore tests on an iPhone Simulator
+scripts/mac.sh build          → app + extension for Simulator and device (unsigned)
+scripts/mac.sh shots          → demo-mode screenshots into docs/gallery
+scripts/mac.sh release v0.3.0 → tests, unsigned IPA, tag, release page with notes from CHANGELOG.md
 ```
 
-To see demo mode, launch the app with `-demo active`, `idle`, `settings`, `help` or `setup`.
+```bash
+scripts/mac.sh all
+```
+
+To see demo mode, launch the app with `-demo active`, `idle`, `settings`, `help` or `setup`,
+or turn on Help › Demo › Show sample data.
+
+The workflows in `.github/workflows/` are kept but disabled. Turn them on again with
+`gh workflow enable ci.yml` and `gh workflow enable release.yml`.
 
 ## Build the app (Mac, Xcode 26.1+)
 

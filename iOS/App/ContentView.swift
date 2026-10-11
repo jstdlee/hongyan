@@ -77,6 +77,12 @@ private struct StatusCard: View {
             .padding(.vertical, 6)
             .accessibilityElement(children: .combine)
 
+            if model.keepAwakeActive {
+                Label(model.keepAwakeMode == .location ? "Staying awake with location" : "Staying awake with silent audio",
+                      systemImage: "bolt.horizontal.circle")
+                    .foregroundStyle(.secondary)
+            }
+
             if AppEnvironment.demoFromUser {
                 Button {
                     model.setDemo(false)

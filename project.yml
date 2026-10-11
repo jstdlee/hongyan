@@ -55,7 +55,8 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         NSPhotoLibraryUsageDescription: Shoebox backs up your photos and videos to your own S3-compatible storage.
-        UIBackgroundModes: [fetch]
+        UIBackgroundModes: [fetch, audio, location]
+        NSLocationWhenInUseUsageDescription: Shoebox can use coarse location to stay awake during a backup, if you turn this on in Settings. Your location is not stored or uploaded.
         BGTaskSchedulerPermittedIdentifiers: [$(SHOEBOX_BUNDLE_ID).refresh]
         ShoeboxRefreshTaskID: $(SHOEBOX_BUNDLE_ID).refresh
         ShoeboxAppGroup: group.$(SHOEBOX_BUNDLE_ID)

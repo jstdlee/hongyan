@@ -1,6 +1,7 @@
 import Foundation
 import Photos
 import ShoeboxCore
+import UIKit
 
 /// UI state: an editable copy of the settings plus the engine's status.
 /// Settings save as you change them; problems show inline, never in alerts.
@@ -21,6 +22,26 @@ final class AppModel: ObservableObject {
     @Published var includeVideos = true { didSet { edited() } }
     @Published var includeLivePhotoVideos = true { didSet { edited() } }
     @Published var includeEdits = true { didSet { edited() } }
+
+    // Keep running (app-only settings, in the app's own UserDefaults)
+    @Published var keepAwakeMode: KeepAwakeMode = .off {
+        didSet {
+            guard !loading else { return }
+            UserDefaults.standard.set(keepAwakeMode.rawValue, forKey: Self.keepAwakeModeKey)
+            stopKeepAwake()
+            updateKeepAwake()
+        }
+    }
+    @Published var keepAwakeOnlyCharging = true {
+        didSet {
+            guard !loading else { return }
+            UserDefaults.standard.set(keepAwakeOnlyCharging, forKey: Self.keepAwakeChargingKey)
+            updateKeepAwake()
+        }
+    }
+    /// True while silent audio or location keeps the app running.
+    @Published private(set) var keepAwakeActive = false
+    @Published private(set) var keepAwakeProblem: String?
 
     // Status
     @Published private(set) var state = EngineState()
@@ -47,6 +68,12 @@ final class AppModel: ObservableObject {
     }
 
     private let repository = SettingsRepository()
+    private static let keepAwakeModeKey = "keepAwakeMode"
+    private static let keepAwakeChargingKey = "keepAwakeOnlyCharging"
+    private let keepAwake = KeepAwake()
+    private let directQueue = DirectUploadQueue()
+    private var driver: Task<Void, Never>?
+    private var batteryObserver: NSObjectProtocol?
     private var loading = false
     private var userEdited = false
     private var saveTask: Task<Void, Never>?
@@ -58,7 +85,18 @@ final class AppModel: ObservableObject {
         } else {
             load()
         }
+        let defaults = UserDefaults.standard
+        keepAwakeMode = defaults.string(forKey: Self.keepAwakeModeKey).flatMap(KeepAwakeMode.init) ?? .off
+        keepAwakeOnlyCharging = defaults.object(forKey: Self.keepAwakeChargingKey) as? Bool ?? true
         loading = false
+
+        keepAwake.onChange = { [weak self] active in self?.keepAwakeActive = active }
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        batteryObserver = NotificationCenter.default.addObserver(
+            forName: UIDevice.batteryStateDidChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.updateKeepAwake() }
+        }
     }
 
     var isDemo: Bool { AppEnvironment.demoScenario != nil }
@@ -91,6 +129,56 @@ final class AppModel: ObservableObject {
         guard !isDemo else { return }
         if let engine = try? EngineFactory.make(), let state = try? engine.currentState() {
             self.state = state
+        }
+        updateKeepAwake()
+    }
+
+    // MARK: Keep running
+
+    /// Starts or stops keeping the app awake. It runs only during a backup
+    /// (and, if chosen, only while charging). It can only start while the app
+    /// is in the foreground; iOS keeps it running after that.
+    func updateKeepAwake() {
+        guard !isDemo else { return }
+        let charging = [.charging, .full].contains(UIDevice.current.batteryState)
+        let wanted = KeepAwakePolicy.shouldRun(enabled: keepAwakeMode != .off, configured: isConfigured,
+                                               backupActive: state.active != nil,
+                                               onlyWhileCharging: keepAwakeOnlyCharging, charging: charging)
+        if wanted, driver == nil {
+            guard UIApplication.shared.applicationState != .background else { return }
+            keepAwake.start(keepAwakeMode)
+            keepAwakeProblem = keepAwake.problem
+            if keepAwakeProblem == nil { startDriver() }
+        } else if !wanted, driver != nil || keepAwake.isActive {
+            stopKeepAwake()
+        }
+    }
+
+    private func stopKeepAwake() {
+        driver?.cancel()
+        driver = nil
+        keepAwake.stop()
+    }
+
+    /// While awake: one engine pass with the app's own uploader every few
+    /// seconds, until the backup is done.
+    private func startDriver() {
+        let queue = directQueue
+        driver = Task { [weak self] in
+            while !Task.isCancelled {
+                _ = await Self.runEngineOnce(queue: queue)
+                guard let self, !Task.isCancelled else { return }
+                if let engine = try? EngineFactory.make(), let state = try? engine.currentState() {
+                    self.state = state
+                }
+                if self.state.active == nil {
+                    self.driver = nil
+                    self.keepAwake.stop()
+                    self.haptic = HapticEvent(kind: self.state.lastError == nil ? .success : .warning)
+                    return
+                }
+                try? await Task.sleep(for: .seconds(8))
+            }
         }
     }
 
@@ -247,7 +335,7 @@ final class AppModel: ObservableObject {
             return
         }
         let outcome = await Self.runEngineOnce()
-        refreshState()
+        refreshState() // also starts "Keep running" if it is on
         switch outcome {
         case .processing, .completed:
             haptic = HapticEvent(kind: state.lastError == nil ? .success : .warning)
@@ -257,9 +345,9 @@ final class AppModel: ObservableObject {
     }
 
     /// One engine pass off the main thread (PhotoKit calls block).
-    nonisolated static func runEngineOnce() async -> EngineOutcome {
+    nonisolated static func runEngineOnce(queue: UploadJobQueue? = nil) async -> EngineOutcome {
         await Task.detached(priority: .utility) {
-            guard let engine = try? EngineFactory.make() else { return EngineOutcome.failure("Cannot open state") }
+            guard let engine = try? EngineFactory.make(queue: queue) else { return EngineOutcome.failure("Cannot open state") }
             return await engine.run()
         }.value
     }

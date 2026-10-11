@@ -485,6 +485,28 @@
         }
       }
     },
+    "Could not start silent audio: %@": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法开始静音音频：%@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無音オーディオを開始できません：%@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무음 오디오를 시작할 수 없음: %@"
+          }
+        }
+      }
+    },
     "Demo": {
       "localizations": {
         "zh-Hans": {
@@ -749,6 +771,28 @@
         }
       }
     },
+    "Keep Shoebox running": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "让 Shoebox 保持运行"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoebox の実行を続ける"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoebox 계속 실행"
+          }
+        }
+      }
+    },
     "Keep on for R2 and MinIO.": {
       "localizations": {
         "zh-Hans": {
@@ -767,6 +811,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "R2와 MinIO에서는 켜 두세요."
+          }
+        }
+      }
+    },
+    "Keep running": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保持运行"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "実行を続ける"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계속 실행"
           }
         }
       }
@@ -833,6 +899,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Live Photo 움직임"
+          }
+        }
+      }
+    },
+    "Location": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置情報"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "위치"
           }
         }
       }
@@ -947,6 +1035,72 @@
         }
       }
     },
+    "Off": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끔"
+          }
+        }
+      }
+    },
+    "Off: iOS uploads in the background when it decides to.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭：由 iOS 决定何时在后台上传。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフ：iOS が決めたときにバックグラウンドでアップロードします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끔: iOS가 정한 때에 백그라운드에서 업로드합니다."
+          }
+        }
+      }
+    },
+    "Only while charging": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅在充电时"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "充電中のみ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "충전 중에만"
+          }
+        }
+      }
+    },
     "Optional": {
       "localizations": {
         "zh-Hans": {
@@ -991,6 +1145,28 @@
         }
       }
     },
+    "Plays silence, mixed with your other audio. A call or another app that takes the audio can pause it.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放静音，并与其他音频混合。来电或占用音频的其他 App 可能会让它暂停。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無音を再生し、ほかのオーディオと混ぜます。通話やオーディオを使うほかのアプリで一時停止することがあります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무음을 재생하며 다른 오디오와 섞입니다. 전화나 오디오를 쓰는 다른 앱이 일시 정지시킬 수 있습니다."
+          }
+        }
+      }
+    },
     "Region": {
       "localizations": {
         "zh-Hans": {
@@ -1009,6 +1185,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "리전"
+          }
+        }
+      }
+    },
+    "Saves battery on long backups.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "长时间备份时节省电量。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "長いバックアップでバッテリーを節約します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "긴 백업에서 배터리를 아낍니다."
           }
         }
       }
@@ -1170,6 +1368,28 @@
         }
       }
     },
+    "Shoebox needs location access to stay awake. Change it in Settings › Privacy › Location Services.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shoebox 需要位置权限才能保持唤醒。请在“设置 › 隐私 › 定位服务”中更改。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "起動を維持するには位置情報へのアクセスが必要です。「設定 › プライバシー › 位置情報サービス」で変更してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있으려면 위치 접근 권한이 필요합니다. 설정 › 개인정보 보호 › 위치 서비스에서 변경하세요."
+          }
+        }
+      }
+    },
     "Shoebox starts a new backup after the number of days you set. iOS picks the exact time.": {
       "localizations": {
         "zh-Hans": {
@@ -1188,6 +1408,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "설정한 일수가 지나면 Shoebox가 새 백업을 시작합니다. 정확한 시간은 iOS가 정합니다."
+          }
+        }
+      }
+    },
+    "Shoebox uploads by itself while it stays awake.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保持唤醒期间，Shoebox 自己上传。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "起動している間、Shoebox が自分でアップロードします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있는 동안 Shoebox가 직접 업로드합니다."
           }
         }
       }
@@ -1236,6 +1478,28 @@
         }
       }
     },
+    "Silent audio": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "静音音频"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無音オーディオ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무음 오디오"
+          }
+        }
+      }
+    },
     "Started %@. Continues in the background.": {
       "localizations": {
         "zh-Hans": {
@@ -1254,6 +1518,72 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@에 시작. 백그라운드에서 계속됩니다."
+          }
+        }
+      }
+    },
+    "Starts when you open Shoebox during a backup or tap Back up now. Stops when the backup is done or when you swipe Shoebox away. Uses more battery. Apple does not allow this in App Store apps.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在备份期间打开 Shoebox 或轻点“立即备份”时开始。备份完成或你将 Shoebox 划掉时停止。会消耗更多电量。App Store 中的 App 不允许这样做。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップ中に Shoebox を開くか「今すぐバックアップ」をタップすると始まります。バックアップが終わるか Shoebox を上にスワイプして閉じると止まります。バッテリーを多く使います。App Store のアプリでは Apple が認めていません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백업 중에 Shoebox를 열거나 '지금 백업'을 탭하면 시작합니다. 백업이 끝나거나 Shoebox를 쓸어 올려 닫으면 멈춥니다. 배터리를 더 사용합니다. App Store 앱에서는 Apple이 허용하지 않습니다."
+          }
+        }
+      }
+    },
+    "Staying awake with location": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在用位置保持唤醒"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "位置情報で起動を維持中"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "위치로 깨어 있는 중"
+          }
+        }
+      }
+    },
+    "Staying awake with silent audio": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在用静音音频保持唤醒"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無音オーディオで起動を維持中"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "무음 오디오로 깨어 있는 중"
           }
         }
       }
@@ -1452,6 +1782,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Shoebox가 닫히거나 휴대폰이 잠겨도 업로드가 계속됩니다."
+          }
+        }
+      }
+    },
+    "Uses coarse location only. iOS shows the blue location indicator. Shoebox does not store your location.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "只使用大致位置。iOS 会显示蓝色定位标志。Shoebox 不保存你的位置。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "おおよその位置情報だけを使います。iOS は青い位置情報インジケータを表示します。Shoebox は位置情報を保存しません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "대략적인 위치만 사용합니다. iOS가 파란색 위치 표시를 보여 줍니다. Shoebox는 위치를 저장하지 않습니다."
           }
         }
       }

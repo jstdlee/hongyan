@@ -96,6 +96,22 @@ Upload Test Mode** so the system runs the extension promptly.
 | C13 | Resumable-upload preflight | Proxy (e.g. Charles on a test device) | The system sends `OPTIONS` to the endpoint; S3/R2 don't support RUFH; check it falls back to a plain PUT and succeeds |
 | C14 | Battery / thermal | Full 10k-photo run | Record battery used and time taken; no thermal warnings |
 
+### C2. Keep running (silent audio / location)
+
+| ID | Scenario | Steps | Expected |
+|---|---|---|---|
+| K1 | Silent audio, locked phone | Keep running = Silent audio, charging off → Back up now → lock phone 30 min | Backup progresses while locked; "Staying awake with silent audio" shows on return |
+| K2 | Music in another app | Start K1, then play music in Music | Music plays normally (mixed); uploads continue |
+| K3 | Phone call | Start K1, take a call, hang up | Audio pauses during the call and resumes after; backup continues |
+| K4 | Location mode | Keep running = Location → allow "While Using" | Blue indicator while backing up; backup progresses while locked; indicator goes away when done |
+| K5 | Location denied | Choose Location → Don't Allow | Inline problem under Keep running; no crash; extension path still works |
+| K6 | Only while charging | Turn on, unplug during a backup | Keep running stops; plug in and open app → starts again |
+| K7 | Done | Let a backup finish while awake | Keep running stops by itself; success haptic; no audio session left active |
+| K8 | Swipe away | Swipe Shoebox away mid-backup | Uploads in progress stop; the next run requeues them; no missing files in the manifest |
+| K9 | Both paths | Keep running on with iCloud Photos off | Extension and app may both upload a file; the manifest lists it once |
+| K10 | iCloud Photos on | Keep running on with "Optimize iPhone Storage" | App downloads originals from iCloud and uploads them (the case the extension may skip) |
+| K11 | Battery | 10k photos, silent audio, unplugged | Record battery used per 1,000 files |
+
 ### D. Scale
 
 | ID | Scenario | Expected |

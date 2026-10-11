@@ -3,6 +3,25 @@
 Each version has one section. The release workflow copies the section of the tagged
 version into the GitHub release page.
 
+## v0.2.0 — 2026-10-11
+
+### Added
+
+- Settings › Keep running › **Keep Shoebox running**: Off, Silent audio or Location.
+  While a backup runs, Shoebox keeps itself awake and uploads by itself, so the backup
+  does not wait for iOS to schedule the background upload extension.
+  - **Silent audio** plays silence, mixed with your other audio.
+  - **Location** uses coarse location. iOS shows the blue location indicator. Shoebox does not store the location.
+  - **Only while charging** (on by default) saves battery.
+  - It starts when you open Shoebox during a backup or tap Back up now. It stops when the
+    backup is done or when you swipe Shoebox away.
+- The main screen shows "Staying awake with …" while it runs.
+
+### Notes
+
+- Uses more battery. Apple does not allow this in App Store apps; it is for sideloaded builds.
+- The app's own uploads and the extension's uploads use the same file names. A file sent by both only overwrites itself.
+
 ## v0.1.1 — 2026-10-03
 
 ### Added

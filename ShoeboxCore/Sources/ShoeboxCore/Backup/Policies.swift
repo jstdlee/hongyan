@@ -96,3 +96,13 @@ public struct FailureClassifier: Sendable {
         return .retry
     }
 }
+
+/// When the app should keep itself awake (silent audio or location) and
+/// upload by itself. Only during a backup, to save battery.
+public enum KeepAwakePolicy {
+    public static func shouldRun(enabled: Bool, configured: Bool, backupActive: Bool,
+                                 onlyWhileCharging: Bool, charging: Bool) -> Bool {
+        guard enabled, configured, backupActive else { return false }
+        return !onlyWhileCharging || charging
+    }
+}

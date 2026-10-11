@@ -206,3 +206,27 @@ final class SettingsTests: XCTestCase {
         XCTAssertEqual(try JSONDecoder().decode(BackupSettings.self, from: data), s)
     }
 }
+
+final class KeepAwakePolicyTests: XCTestCase {
+    func run(_ enabled: Bool = true, configured: Bool = true, active: Bool = true,
+             onlyCharging: Bool = false, charging: Bool = false) -> Bool {
+        KeepAwakePolicy.shouldRun(enabled: enabled, configured: configured, backupActive: active,
+                                  onlyWhileCharging: onlyCharging, charging: charging)
+    }
+
+    func testRunsOnlyDuringABackup() {
+        XCTAssertTrue(run())
+        XCTAssertFalse(run(active: false), "never keep the phone awake while idle")
+    }
+
+    func testOffOrNotConfiguredNeverRuns() {
+        XCTAssertFalse(run(false))
+        XCTAssertFalse(run(configured: false))
+    }
+
+    func testOnlyWhileCharging() {
+        XCTAssertFalse(run(onlyCharging: true, charging: false))
+        XCTAssertTrue(run(onlyCharging: true, charging: true))
+        XCTAssertTrue(run(onlyCharging: false, charging: false))
+    }
+}

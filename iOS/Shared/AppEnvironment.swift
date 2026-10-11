@@ -55,7 +55,8 @@ enum AppEnvironment {
 /// Builds a BackupEngine wired to PhotoKit, the Keychain and the App Group.
 /// Used by both the app and the upload extension.
 enum EngineFactory {
-    static func make() throws -> BackupEngine {
+    /// `queue` replaces PhotoKit's upload jobs, e.g. with the app's own uploader.
+    static func make(queue customQueue: UploadJobQueue? = nil) throws -> BackupEngine {
         let repository = SettingsRepository()
         let settings = repository.loadSettings()
         let credentials = repository.loadCredentials()
@@ -68,7 +69,7 @@ enum EngineFactory {
             remote = UnconfiguredSnapshotStore()
         }
         return BackupEngine(settings: settings, credentials: credentials, library: library,
-                            queue: PhotoKitJobQueue(library: library), remote: remote,
+                            queue: customQueue ?? PhotoKitJobQueue(library: library), remote: remote,
                             store: try FileStateStore(directory: AppEnvironment.engineDirectory),
                             lock: FileLock(url: AppEnvironment.lockURL),
                             uploadURLBase: AppEnvironment.uploadURLBase)

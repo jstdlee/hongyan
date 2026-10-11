@@ -10,6 +10,8 @@ S3-compatible storage, such as Cloudflare R2, AWS S3, MinIO or Backblaze B2, **i
   under `snapshots/<timestamp>/`.
 - **Every N days**: iOS schedules the work, usually while charging on Wi-Fi.
 - **Keep latest X**: older snapshots are deleted automatically.
+- **Keep running** (optional): silent audio or location keeps the app awake during a backup, and the
+  app uploads by itself. For sideloaded builds; Apple does not allow it in App Store apps.
 - **No encryption** and no third-party dependencies. The app uses only Apple frameworks.
 
 ## Gallery

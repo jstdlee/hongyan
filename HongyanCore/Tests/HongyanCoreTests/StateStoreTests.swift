@@ -1,5 +1,5 @@
 import XCTest
-@testable import ShoeboxCore
+@testable import HongyanCore
 
 final class StateStoreTests: XCTestCase {
     let id = SnapshotID("20260101T000000Z")!

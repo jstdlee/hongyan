@@ -1,5 +1,5 @@
 import XCTest
-@testable import ShoeboxCore
+@testable import HongyanCore
 
 final class KeyLayoutTests: XCTestCase {
     let utc = TimeZone(identifier: "UTC")!

@@ -21,7 +21,7 @@ jobs:
     env:
       TAG: ${{ github.event.inputs.tag || github.ref_name }}
       # Optional repo variable: Settings › Secrets and variables › Actions › Variables.
-      UPLOAD_BASE: ${{ vars.SHOEBOX_UPLOAD_URL_BASE || 'https://ACCOUNT_ID.r2.cloudflarestorage.com' }}
+      UPLOAD_BASE: ${{ vars.HONGYAN_UPLOAD_URL_BASE || 'https://ACCOUNT_ID.r2.cloudflarestorage.com' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,23 +51,23 @@ jobs:
         run: |
           set -o pipefail
           UDID=$(scripts/pick-simulator.sh)
-          cd ShoeboxCore
-          xcodebuild test -scheme ShoeboxCore -destination "id=$UDID" | xcbeautify
+          cd HongyanCore
+          xcodebuild test -scheme HongyanCore -destination "id=$UDID" | xcbeautify
 
       - name: Build IPA (unsigned)
         run: |
           set -o pipefail
           xcodegen generate
           VERSION="${TAG#v}"
-          xcodebuild build -project Shoebox.xcodeproj -scheme Shoebox -configuration Release \
+          xcodebuild build -project Hongyan.xcodeproj -scheme Hongyan -configuration Release \
             -destination 'generic/platform=iOS' -derivedDataPath build/release \
             CODE_SIGNING_ALLOWED=NO \
             MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
-            SHOEBOX_UPLOAD_URL_BASE="$UPLOAD_BASE" | xcbeautify
+            HONGYAN_UPLOAD_URL_BASE="$UPLOAD_BASE" | xcbeautify
           mkdir -p dist/Payload
-          cp -R build/release/Build/Products/Release-iphoneos/Shoebox.app dist/Payload/
-          (cd dist && zip -qry "Shoebox-$TAG.ipa" Payload && rm -rf Payload)
-          (cd dist && shasum -a 256 "Shoebox-$TAG.ipa" > "Shoebox-$TAG.ipa.sha256")
+          cp -R build/release/Build/Products/Release-iphoneos/Hongyan.app dist/Payload/
+          (cd dist && zip -qry "Hongyan-$TAG.ipa" Payload && rm -rf Payload)
+          (cd dist && shasum -a 256 "Hongyan-$TAG.ipa" > "Hongyan-$TAG.ipa.sha256")
           ls -la dist
 
       - name: Add install section to the notes
@@ -78,13 +78,13 @@ jobs:
 
           | File | What it is |
           |---|---|
-          | \`Shoebox-$TAG.ipa\` | Unsigned app for iPhone (iOS 26.1+) |
-          | \`Shoebox-$TAG.ipa.sha256\` | SHA-256 checksum |
+          | \`Hongyan-$TAG.ipa\` | Unsigned app for iPhone (iOS 26.1+) |
+          | \`Hongyan-$TAG.ipa.sha256\` | SHA-256 checksum |
 
           - The IPA is **not signed**. Sign and install it with your own Apple ID, for example with
             [Sideloadly](https://sideloadly.io) or [AltStore](https://altstore.io), or build from source in Xcode.
           - This IPA uploads only under **\`$UPLOAD_BASE\`**. For another endpoint, build from source
-            and set \`SHOEBOX_UPLOAD_URL_BASE\` in \`project.yml\`.
+            and set \`HONGYAN_UPLOAD_URL_BASE\` in \`project.yml\`.
           - Background backup needs the App Group entitlement that is shared by the app and the extension.
             Some sideload tools remove it. For full background support, build and sign in Xcode with your own team.
           NOTES
@@ -97,5 +97,5 @@ jobs:
             gh release upload "$TAG" dist/* --clobber
             gh release edit "$TAG" --notes-file notes.md
           else
-            gh release create "$TAG" dist/* --title "Shoebox $TAG" --notes-file notes.md
+            gh release create "$TAG" dist/* --title "Hongyan $TAG" --notes-file notes.md
           fi

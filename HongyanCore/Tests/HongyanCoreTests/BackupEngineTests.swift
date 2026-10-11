@@ -1,5 +1,5 @@
 import XCTest
-@testable import ShoeboxCore
+@testable import HongyanCore
 
 /// End-to-end scenarios for the backup state machine, with PhotoKit, the job
 /// system and the bucket replaced by fakes.

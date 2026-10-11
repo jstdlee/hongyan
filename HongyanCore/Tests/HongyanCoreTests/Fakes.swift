@@ -1,5 +1,5 @@
 import Foundation
-@testable import ShoeboxCore
+@testable import HongyanCore
 
 /// Scripted HTTP transport: records requests, answers from a handler.
 final class MockTransport: HTTPTransport, @unchecked Sendable {
@@ -214,7 +214,7 @@ final class TempDir {
     let url: URL
 
     init() {
-        url = FileManager.default.temporaryDirectory.appendingPathComponent("shoebox-tests-\(UUID().uuidString)")
+        url = FileManager.default.temporaryDirectory.appendingPathComponent("hongyan-tests-\(UUID().uuidString)")
         try! FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
     }
 

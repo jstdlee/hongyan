@@ -1,5 +1,5 @@
 import XCTest
-@testable import ShoeboxCore
+@testable import HongyanCore
 
 /// Vectors from the AWS SigV4 test suite and the S3 SigV4 documentation
 /// examples ("Examples of signature calculations", "Authenticating requests:

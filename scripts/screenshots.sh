@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Take the README gallery screenshots from the demo mode of the app.
-# Usage: scripts/screenshots.sh <simulator-udid> <path/to/Shoebox.app> <output-dir>
+# Usage: scripts/screenshots.sh <simulator-udid> <path/to/Hongyan.app> <output-dir>
 set -euo pipefail
 UDID="$1"; APP="$2"; OUT="$3"
 BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")

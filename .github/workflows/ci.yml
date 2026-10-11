@@ -34,11 +34,11 @@ jobs:
       - name: Pick simulator
         run: echo "SIM_UDID=$(scripts/pick-simulator.sh)" >> "$GITHUB_ENV"
 
-      - name: Unit tests (ShoeboxCore on iOS Simulator)
-        working-directory: ShoeboxCore
+      - name: Unit tests (HongyanCore on iOS Simulator)
+        working-directory: HongyanCore
         run: |
           set -o pipefail
-          xcodebuild test -scheme ShoeboxCore -destination "id=$SIM_UDID" \
+          xcodebuild test -scheme HongyanCore -destination "id=$SIM_UDID" \
             -resultBundlePath ../build/CoreTests.xcresult | xcbeautify
 
       - name: Generate Xcode project
@@ -47,19 +47,19 @@ jobs:
       - name: Build app + upload extension (Simulator)
         run: |
           set -o pipefail
-          xcodebuild build -project Shoebox.xcodeproj -scheme Shoebox \
+          xcodebuild build -project Hongyan.xcodeproj -scheme Hongyan \
             -destination "id=$SIM_UDID" -derivedDataPath build/sim \
             CODE_SIGNING_ALLOWED=NO | xcbeautify
 
       - name: Build for device (unsigned)
         run: |
           set -o pipefail
-          xcodebuild build -project Shoebox.xcodeproj -scheme Shoebox \
+          xcodebuild build -project Hongyan.xcodeproj -scheme Hongyan \
             -destination 'generic/platform=iOS' -derivedDataPath build/device \
             CODE_SIGNING_ALLOWED=NO | xcbeautify
 
       - name: Gallery screenshots
-        run: scripts/screenshots.sh "$SIM_UDID" build/sim/Build/Products/Debug-iphonesimulator/Shoebox.app docs/gallery
+        run: scripts/screenshots.sh "$SIM_UDID" build/sim/Build/Products/Debug-iphonesimulator/Hongyan.app docs/gallery
 
       - uses: actions/upload-artifact@v4
         if: always()

@@ -3,6 +3,20 @@
 Each version has one section. The release workflow copies the section of the tagged
 version into the GitHub release page.
 
+## v0.3.0 — 2026-10-11
+
+### Changed
+
+- **New name: Hongyan 鸿雁** (was Shoebox), from the saying 鸿雁传书, "the goose carries the letter".
+  The app shows 鸿雁 in Chinese and 鴻雁 in Japanese.
+- Bundle ID is now `com.jstdlee.hongyan`. It installs as a new app; set up storage again.
+- The repo is now `jstdlee/hongyan`. Old links redirect.
+- Help › About the name tells the story.
+
+### Fixed
+
+- The IPA now reports its real version (it showed 1.0 before).
+
 ## v0.2.0 — 2026-10-11
 
 ### Added

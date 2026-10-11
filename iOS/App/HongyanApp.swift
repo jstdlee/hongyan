@@ -1,9 +1,9 @@
 import BackgroundTasks
-import ShoeboxCore
+import HongyanCore
 import SwiftUI
 
 @main
-struct ShoeboxApp: App {
+struct HongyanApp: App {
     @StateObject private var model = AppModel()
     @Environment(\.scenePhase) private var scenePhase
 

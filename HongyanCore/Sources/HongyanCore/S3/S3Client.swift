@@ -1,6 +1,6 @@
 import Foundation
 
-/// The few S3 operations Shoebox needs. Photo uploads themselves are not done
+/// The few S3 operations Hongyan needs. Photo uploads themselves are not done
 /// here — PhotoKit's background upload service sends them to presigned URLs.
 public struct S3Client: Sendable {
     public var config: S3Config

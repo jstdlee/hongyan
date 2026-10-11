@@ -1,6 +1,6 @@
 import Foundation
 import Photos
-import ShoeboxCore
+import HongyanCore
 import UIKit
 
 /// UI state: an editable copy of the settings plus the engine's status.
@@ -289,8 +289,8 @@ final class AppModel: ObservableObject {
         let root = KeyLayout(prefix: s3.normalizedPrefix).snapshotsRoot
         do {
             _ = try await client.listObjects(prefix: root, maxKeys: 1)
-            try await client.putObject(key: root + ".shoebox-probe", body: Data("ok".utf8), contentType: "text/plain")
-            _ = try await client.deleteObjects(keys: [root + ".shoebox-probe"])
+            try await client.putObject(key: root + ".hongyan-probe", body: Data("ok".utf8), contentType: "text/plain")
+            _ = try await client.deleteObjects(keys: [root + ".hongyan-probe"])
             connection = .ok
             haptic = HapticEvent(kind: .success)
         } catch {
@@ -310,7 +310,7 @@ final class AppModel: ObservableObject {
             let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
             photoAccess = status
             guard status == .authorized else {
-                backgroundProblem = String(localized: "Shoebox needs Full Access to photos. Change it in Settings › Privacy › Photos.")
+                backgroundProblem = String(localized: "Hongyan needs Full Access to photos. Change it in Settings › Privacy › Photos.")
                 haptic = HapticEvent(kind: .warning)
                 return
             }

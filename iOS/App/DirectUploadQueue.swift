@@ -1,8 +1,8 @@
 import Foundation
 import Photos
-import ShoeboxCore
+import HongyanCore
 
-/// Uploads by the app itself, used while Shoebox keeps itself awake.
+/// Uploads by the app itself, used while Hongyan keeps itself awake.
 ///
 /// It plays the role of PhotoKit's background upload jobs: the engine creates
 /// jobs (presigned PUTs), this queue exports each resource to a temporary

@@ -1,6 +1,6 @@
 import Foundation
 import Photos
-import ShoeboxCore
+import HongyanCore
 
 /// PhotoLibrarySource over PHAsset / PHAssetResource.
 final class PhotoKitLibrarySource: PhotoLibrarySource {
@@ -8,7 +8,7 @@ final class PhotoKitLibrarySource: PhotoLibrarySource {
     private var assetCache: [String: PHAsset] = [:]
 
     struct NoFullPhotoAccess: Error, CustomStringConvertible {
-        var description: String { "Shoebox needs Full Access to the photo library" }
+        var description: String { "Hongyan needs Full Access to the photo library" }
     }
 
     func allAssetIDs(policy: ResourcePolicy) throws -> [String] {

@@ -1,5 +1,5 @@
 import XCTest
-@testable import ShoeboxCore
+@testable import HongyanCore
 
 final class S3ConfigTests: XCTestCase {
     let r2 = S3Config(endpoint: URL(string: "https://acct123.r2.cloudflarestorage.com")!, region: "auto",

@@ -1,12 +1,12 @@
 import Foundation
 import Security
-import ShoeboxCore
+import HongyanCore
 
 /// Settings in App Group UserDefaults, access keys in the shared Keychain
 /// group, so the upload extension sees exactly what the app saved.
 struct SettingsRepository {
     private static let settingsKey = "settings.v1"
-    private static let service = "shoebox.s3"
+    private static let service = "hongyan.s3"
 
     private var defaults: UserDefaults {
         UserDefaults(suiteName: AppEnvironment.appGroup)!

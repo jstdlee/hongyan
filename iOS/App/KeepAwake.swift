@@ -2,7 +2,7 @@ import AVFoundation
 import CoreLocation
 import Foundation
 
-/// How Shoebox keeps itself running in the background during a backup.
+/// How Hongyan keeps itself running in the background during a backup.
 enum KeepAwakeMode: String, CaseIterable, Identifiable {
     case off, audio, location
     var id: Self { self }
@@ -141,7 +141,7 @@ final class KeepAwake: NSObject {
         case .notDetermined:
             break
         default:
-            problem = String(localized: "Shoebox needs location access to stay awake. Change it in Settings › Privacy › Location Services.")
+            problem = String(localized: "Hongyan needs location access to stay awake. Change it in Settings › Privacy › Location Services.")
             isActive = false
         }
     }

@@ -1,7 +1,7 @@
-# Shoebox
+# Hongyan
 
-[![CI](https://github.com/jstdlee/shoebox/actions/workflows/ci.yml/badge.svg)](https://github.com/jstdlee/shoebox/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/jstdlee/shoebox)](https://github.com/jstdlee/shoebox/releases/latest)
+[![CI](https://github.com/jstdlee/hongyan/actions/workflows/ci.yml/badge.svg)](https://github.com/jstdlee/hongyan/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/jstdlee/hongyan)](https://github.com/jstdlee/hongyan/releases/latest)
 
 A small iOS app (Swift, iOS 26.1+) that backs up the whole photo library to
 S3-compatible storage, such as Cloudflare R2, AWS S3, MinIO or Backblaze B2, **in the background**.
@@ -13,6 +13,24 @@ S3-compatible storage, such as Cloudflare R2, AWS S3, MinIO or Backblaze B2, **i
 - **Keep running** (optional): silent audio or location keeps the app awake during a backup, and the
   app uploads by itself. For sideloaded builds; Apple does not allow it in App Store apps.
 - **No encryption** and no third-party dependencies. The app uses only Apple frameworks.
+
+## The name
+
+**Hongyan 鸿雁** is the wild goose of the old saying 鸿雁传书, "the goose carries the letter".
+Su Wu, a Han envoy, was held by the Xiongnu for 19 years. A Han envoy then said that the
+emperor had shot a goose with a letter from Su Wu on its foot, and the Xiongnu let Su Wu go home.
+
+Geese fly far, in their season and in order, and they arrive. Hongyan carries your photos the
+same way:
+
+| The goose | The app |
+|---|---|
+| carries the letter | carries your photos to your own storage |
+| flies in its season | iOS picks the time; every N days |
+| flies in order, the flock stays together | full snapshots, keep the latest X |
+| always arrives | failed files are sent again with a fresh URL |
+
+Hongyan was called Shoebox before v0.3.0.
 
 ## Gallery
 
@@ -30,7 +48,7 @@ English, 简体中文, 日本語 and 한국어.
 
 ## Download
 
-Get the newest IPA from the [release page](https://github.com/jstdlee/shoebox/releases/latest).
+Get the newest IPA from the [release page](https://github.com/jstdlee/hongyan/releases/latest).
 The release page also has the release notes. All versions are in [CHANGELOG.md](CHANGELOG.md).
 
 - The IPA is **unsigned**. Sign and install it with your own Apple ID (Sideloadly, AltStore),
@@ -77,10 +95,10 @@ snapshots and prevents `IMG_0001` collisions.
 ## Layout
 
 ```
-ShoeboxCore/                  Swift package: logic without PhotoKit
-  Sources/ShoeboxCore/S3/     SigV4, S3 client, XML, config
-  Sources/ShoeboxCore/Backup/ engine, key layout, schedule, retention, state files
-  Tests/ShoeboxCoreTests/     149 XCTests (AWS SigV4 vectors, engine scenarios with fakes)
+HongyanCore/                  Swift package: logic without PhotoKit
+  Sources/HongyanCore/S3/     SigV4, S3 client, XML, config
+  Sources/HongyanCore/Backup/ engine, key layout, schedule, retention, state files
+  Tests/HongyanCoreTests/     149 XCTests (AWS SigV4 vectors, engine scenarios with fakes)
 iOS/Shared/                   PhotoKit adapters, Keychain/App Group settings, engine factory
 iOS/UploadExtension/          PHBackgroundResourceUploadExtension entry point
 iOS/App/                      SwiftUI app (one settings/status screen)
@@ -98,7 +116,7 @@ docs/TEST_PLAN.md             automated coverage + on-device scenarios
 
 GitHub Actions (`macos-26`, newest Xcode) does these steps on every push and pull request:
 
-1. Run the ShoeboxCore tests on an iPhone Simulator.
+1. Run the HongyanCore tests on an iPhone Simulator.
 2. Generate the Xcode project with XcodeGen.
 3. Build the app and the upload extension for the Simulator and for a device (unsigned).
 4. Take the gallery screenshots in demo mode. On `main`, commit them when they change.
@@ -106,8 +124,8 @@ GitHub Actions (`macos-26`, newest Xcode) does these steps on every push and pul
 To run the tests on a Mac:
 
 ```bash
-cd ShoeboxCore
-xcodebuild test -scheme ShoeboxCore -destination 'platform=iOS Simulator,name=iPhone 17'
+cd HongyanCore
+xcodebuild test -scheme HongyanCore -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
 To see demo mode, launch the app with `-demo active`, `idle`, `settings`, `help` or `setup`.
@@ -115,11 +133,11 @@ To see demo mode, launch the app with `-demo active`, `idle`, `settings`, `help`
 ## Build the app (Mac, Xcode 26.1+)
 
 1. Edit `project.yml`:
-   - `SHOEBOX_BUNDLE_ID`: your bundle id.
-   - `SHOEBOX_UPLOAD_URL_BASE`: your endpoint, e.g. `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`.
+   - `HONGYAN_BUNDLE_ID`: your bundle id.
+   - `HONGYAN_UPLOAD_URL_BASE`: your endpoint, e.g. `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`.
      Apple requires this in the extension's Info.plist, and uploads outside it are refused.
    - `DEVELOPMENT_TEAM`.
-2. `brew install xcodegen && xcodegen generate && open Shoebox.xcodeproj`
+2. `brew install xcodegen && xcodegen generate && open Hongyan.xcodeproj`
 3. In the Apple Developer portal, register the App Group `group.<bundle id>` for both
    the app and `<bundle id>.upload`. Xcode's automatic signing usually does this for you.
 4. Run on a **real device**. The extension does not run in the Simulator.
@@ -127,10 +145,10 @@ To see demo mode, launch the app with `-demo active`, `idle`, `settings`, `help`
    **Turn on background backup** (full photo access), then **Back up now**.
 
 If XcodeGen can't create the ExtensionKit target, add it by hand: File → New →
-Target → Generic Extension named `ShoeboxUpload`. Add `iOS/UploadExtension` and
+Target → Generic Extension named `HongyanUpload`. Add `iOS/UploadExtension` and
 `iOS/Shared`, and set these Info.plist keys: `EXAppExtensionAttributes.EXExtensionPointIdentifier =
-com.apple.photos.background-upload`, `BackgroundUploadURLBase`, `ShoeboxAppGroup`,
-`ShoeboxKeychainGroup`. Use the same App Group and Keychain group entitlements as the app.
+com.apple.photos.background-upload`, `BackgroundUploadURLBase`, `HongyanAppGroup`,
+`HongyanKeychainGroup`. Use the same App Group and Keychain group entitlements as the app.
 
 ### Cloudflare R2 setup
 
@@ -157,6 +175,6 @@ scripts/restore.sh latest ./restore
 - **Full backups re-upload everything each time**, so storage grows by about library size × keep latest.
 - **The endpoint is fixed per build** (`BackgroundUploadURLBase`).
 - **iOS 27** replaces the extension protocol with an async one. 26.1's still works but is
-  deprecated; see the comment in `ShoeboxUploadExtension.swift`.
+  deprecated; see the comment in `HongyanUploadExtension.swift`.
 - CI proves that the app compiles and the core logic works. It can't prove background uploads:
   the extension doesn't run in the Simulator. Use `docs/TEST_PLAN.md` on a real iPhone.

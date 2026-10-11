@@ -1,7 +1,7 @@
 import ExtensionFoundation
 import Foundation
 import Photos
-import ShoeboxCore
+import HongyanCore
 
 /// Entry point the system calls when it's a good time to upload (network,
 /// power, device idle). Each call runs one bounded engine pass.
@@ -15,7 +15,7 @@ import ShoeboxCore
 ///         await Self.map(engine.run(shouldStop: { stop.isSet }))
 ///     }
 @main
-final class ShoeboxUploadExtension: PHBackgroundResourceUploadExtension {
+final class HongyanUploadExtension: PHBackgroundResourceUploadExtension {
     private let stop = StopFlag()
 
     required init() {}

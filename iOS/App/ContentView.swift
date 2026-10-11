@@ -1,4 +1,4 @@
-import ShoeboxCore
+import HongyanCore
 import SwiftUI
 
 enum Route: Hashable {
@@ -28,7 +28,7 @@ struct ContentView: View {
                 HistorySection()
             }
             .listStyle(.insetGrouped)
-            .navigationTitle("Shoebox")
+            .navigationTitle("Hongyan")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink(value: Route.settings) {
@@ -155,7 +155,7 @@ private struct StatusCard: View {
         case .notSetUp:
             return String(localized: "Add your S3 or R2 storage to start.")
         case .off:
-            return String(localized: "Turn it on to back up while Shoebox is closed.")
+            return String(localized: "Turn it on to back up while Hongyan is closed.")
         case .running:
             let started = model.state.active!.startedAt.formatted(date: .abbreviated, time: .shortened)
             return String(localized: "Started \(started). Continues in the background.")
@@ -229,7 +229,7 @@ private struct HistorySection: View {
             Text("History")
         } footer: {
             if !model.state.history.isEmpty {
-                Text("Shoebox keeps the latest \(model.keepLatest.formatted()) backups and deletes older ones.")
+                Text("Hongyan keeps the latest \(model.keepLatest.formatted()) backups and deletes older ones.")
             }
         }
     }

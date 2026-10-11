@@ -1,11 +1,11 @@
 import Foundation
-import ShoeboxCore
+import HongyanCore
 
 /// Build-time identifiers, read from each target's Info.plist (see project.yml).
 enum AppEnvironment {
-    static var appGroup: String { string("ShoeboxAppGroup") }
-    static var keychainGroup: String { string("ShoeboxKeychainGroup") }
-    static var refreshTaskID: String { string("ShoeboxRefreshTaskID") }
+    static var appGroup: String { string("HongyanAppGroup") }
+    static var keychainGroup: String { string("HongyanKeychainGroup") }
+    static var refreshTaskID: String { string("HongyanRefreshTaskID") }
 
     /// The `BackgroundUploadURLBase` the upload extension is built with.
     static var uploadURLBase: URL? {
@@ -19,7 +19,7 @@ enum AppEnvironment {
         // Unsigned Simulator builds (CI) have no App Group entitlement. Use the
         // app's own folder; the extension can't share it, which is fine there.
         let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Shoebox", isDirectory: true)
+            .appendingPathComponent("Hongyan", isDirectory: true)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }
@@ -34,7 +34,7 @@ enum AppEnvironment {
         return UserDefaults.standard.string(forKey: demoDefaultsKey)
     }
 
-    static let demoDefaultsKey = "ShoeboxDemo"
+    static let demoDefaultsKey = "HongyanDemo"
 
     /// Sample data turned on by the user (not by a screenshot launch argument).
     static var demoFromUser: Bool {

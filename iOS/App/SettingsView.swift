@@ -1,4 +1,4 @@
-import ShoeboxCore
+import HongyanCore
 import SwiftUI
 
 /// Settings save as you change them. Problems show under the section that
@@ -15,7 +15,7 @@ struct SettingsView: View {
             KeepRunningSection()
             Section {
                 NavigationLink(value: Route.help) {
-                    Label("How Shoebox works", systemImage: "questionmark.circle")
+                    Label("How Hongyan works", systemImage: "questionmark.circle")
                 }
             } footer: {
                 Text("Changes are saved as you make them.")
@@ -178,7 +178,7 @@ private struct BackgroundSection: View {
         Section {
             Toggle(isOn: Binding(get: { model.backgroundEnabled },
                                  set: { on in Task { await model.setBackgroundBackup(on) } })) {
-                RowLabel(title: "Background backup", detail: "Uploads continue when Shoebox is closed or the phone is locked.")
+                RowLabel(title: "Background backup", detail: "Uploads continue when Hongyan is closed or the phone is locked.")
             }
         } header: {
             Text("Background")
@@ -200,7 +200,7 @@ private struct KeepRunningSection: View {
                 Text("Silent audio").tag(KeepAwakeMode.audio)
                 Text("Location").tag(KeepAwakeMode.location)
             } label: {
-                RowLabel(title: "Keep Shoebox running", detail: "Shoebox uploads by itself while it stays awake.")
+                RowLabel(title: "Keep Hongyan running", detail: "Hongyan uploads by itself while it stays awake.")
             }
             if model.keepAwakeMode != .off {
                 Toggle(isOn: $model.keepAwakeOnlyCharging) {
@@ -220,10 +220,10 @@ private struct KeepRunningSection: View {
                 case .audio:
                     Text("Plays silence, mixed with your other audio. A call or another app that takes the audio can pause it.")
                 case .location:
-                    Text("Uses coarse location only. iOS shows the blue location indicator. Shoebox does not store your location.")
+                    Text("Uses coarse location only. iOS shows the blue location indicator. Hongyan does not store your location.")
                 }
                 if model.keepAwakeMode != .off {
-                    Text("Starts when you open Shoebox during a backup or tap Back up now. Stops when the backup is done or when you swipe Shoebox away. Uses more battery. Apple does not allow this in App Store apps.")
+                    Text("Starts when you open Hongyan during a backup or tap Back up now. Stops when the backup is done or when you swipe Hongyan away. Uses more battery. Apple does not allow this in App Store apps.")
                 }
             }
         }

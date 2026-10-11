@@ -1,9 +1,9 @@
-# Shoebox test plan
+# Hongyan test plan
 
 Two layers:
 
 1. **Automated (GitHub Actions, iOS Simulator):** 149 XCTest cases over
-   ShoeboxCore: SigV4 (AWS published vectors), S3 client, key layout, schedule,
+   HongyanCore: SigV4 (AWS published vectors), S3 client, key layout, schedule,
    retention, state files, and the full backup engine with fake PhotoKit, fake job
    system and fake bucket. CI also builds the app and extension for Simulator and device.
 2. **On device (later):** the scenarios below. These cover what can't be faked:
@@ -55,8 +55,8 @@ Upload Test Mode** so the system runs the extension promptly.
 | A2 | Save with missing fields | Leave bucket empty → Save | Alert lists the problems; nothing saved |
 | A3 | Wrong keys | Enter bad secret → Test connection | "Connection failed: HTTP 403 SignatureDoesNotMatch" (or InvalidAccessKeyId) |
 | A4 | Right keys, read-only token | Test connection | List OK, write fails with 403 → clear message |
-| A5 | Correct R2 config | Test connection | "Connection OK"; no `.shoebox-probe` object left in the bucket |
-| A6 | Endpoint outside upload base | Enter another account's endpoint → Save | Alert explains SHOEBOX_UPLOAD_URL_BASE |
+| A5 | Correct R2 config | Test connection | "Connection OK"; no `.hongyan-probe` object left in the bucket |
+| A6 | Endpoint outside upload base | Enter another account's endpoint → Save | Alert explains HONGYAN_UPLOAD_URL_BASE |
 | A7 | Photo permission: deny | Turn on background backup → Don't Allow | Message pointing to Settings; no snapshot starts |
 | A8 | Photo permission: limited | Choose "Limited Access" | Treated as not authorized (full access required); no partial snapshot |
 | A9 | Enable background | Allow Full Access | "Background backup is on"; `uploadJobExtensionEnabled` true after relaunch |
@@ -107,7 +107,7 @@ Upload Test Mode** so the system runs the extension promptly.
 | K5 | Location denied | Choose Location → Don't Allow | Inline problem under Keep running; no crash; extension path still works |
 | K6 | Only while charging | Turn on, unplug during a backup | Keep running stops; plug in and open app → starts again |
 | K7 | Done | Let a backup finish while awake | Keep running stops by itself; success haptic; no audio session left active |
-| K8 | Swipe away | Swipe Shoebox away mid-backup | Uploads in progress stop; the next run requeues them; no missing files in the manifest |
+| K8 | Swipe away | Swipe Hongyan away mid-backup | Uploads in progress stop; the next run requeues them; no missing files in the manifest |
 | K9 | Both paths | Keep running on with iCloud Photos off | Extension and app may both upload a file; the manifest lists it once |
 | K10 | iCloud Photos on | Keep running on with "Optimize iPhone Storage" | App downloads originals from iCloud and uploads them (the case the extension may skip) |
 | K11 | Battery | 10k photos, silent audio, unplugged | Record battery used per 1,000 files |

@@ -1,5 +1,5 @@
 import XCTest
-@testable import ShoeboxCore
+@testable import HongyanCore
 
 final class S3XMLTests: XCTestCase {
     func testParseListWithObjectsAndPrefixes() throws {

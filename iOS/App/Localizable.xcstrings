@@ -111,6 +111,28 @@
         }
       }
     },
+    "About the name": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名字的由来"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "名前の由来"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름의 유래"
+          }
+        }
+      }
+    },
     "Access key": {
       "localizations": {
         "zh-Hans": {
@@ -683,6 +705,28 @@
         }
       }
     },
+    "Geese fly far, in their season and in order, and they arrive. Hongyan carries your photos the same way: iOS picks the time, and every file arrives.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大雁按季节、成行列地远飞，总能到达。鸿雁也这样运送你的照片：时间由 iOS 决定，每个文件都会送到。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "雁は季節ごとに列をつくって遠くへ飛び、必ず着きます。鴻雁も同じように写真を運びます。時刻は iOS が決め、どのファイルも必ず届きます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기러기는 철 따라 줄지어 멀리 날아가 반드시 도착합니다. Hongyan도 사진을 그렇게 옮깁니다. 시간은 iOS가 정하고, 모든 파일이 도착합니다."
+          }
+        }
+      }
+    },
     "History": {
       "localizations": {
         "zh-Hans": {
@@ -705,24 +749,178 @@
         }
       }
     },
-    "How Shoebox works": {
+    "Hongyan": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shoebox 的工作方式"
+            "value": "鸿雁"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shoebox のしくみ"
+            "value": "鴻雁"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shoebox 작동 방식"
+            "value": "Hongyan"
+          }
+        }
+      }
+    },
+    "Hongyan (鸿雁) is the wild goose of the old saying 鸿雁传书: the goose carries the letter.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鸿雁，出自成语“鸿雁传书”：大雁为人传递书信。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鴻雁（こうがん）は「鴻雁伝書」の故事に出てくる雁です。雁が手紙を運びます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hongyan(鸿雁)은 '홍안전서(鸿雁传书)'라는 옛말에 나오는 기러기입니다. 기러기가 편지를 전합니다."
+          }
+        }
+      }
+    },
+    "Hongyan keeps the latest %@ backups and deletes older ones.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鸿雁 保留最近 %@ 份备份，并删除更早的备份。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鴻雁 は最新の %@ 件を保持し、古いバックアップを削除します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hongyan는 최근 백업 %@개를 보관하고 오래된 백업을 삭제합니다."
+          }
+        }
+      }
+    },
+    "Hongyan needs Full Access to photos. Change it in Settings › Privacy › Photos.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鸿雁 需要照片的完全访问权限。请在“设置 › 隐私 › 照片”中更改。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鴻雁 には写真へのフルアクセスが必要です。「設定 › プライバシー › 写真」で変更してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hongyan에는 사진 전체 접근 권한이 필요합니다. 설정 › 개인정보 보호 › 사진에서 변경하세요."
+          }
+        }
+      }
+    },
+    "Hongyan needs location access to stay awake. Change it in Settings › Privacy › Location Services.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鸿雁 需要位置权限才能保持唤醒。请在“设置 › 隐私 › 定位服务”中更改。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "起動を維持するには位置情報へのアクセスが必要です。「設定 › プライバシー › 位置情報サービス」で変更してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있으려면 위치 접근 권한이 필요합니다. 설정 › 개인정보 보호 › 위치 서비스에서 변경하세요."
+          }
+        }
+      }
+    },
+    "Hongyan starts a new backup after the number of days you set. iOS picks the exact time.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "经过你设置的天数后，鸿雁 会开始新的备份。具体时间由 iOS 决定。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定した日数が過ぎると、鴻雁 は新しいバックアップを開始します。正確な時刻は iOS が決めます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정한 일수가 지나면 Hongyan가 새 백업을 시작합니다. 정확한 시간은 iOS가 정합니다."
+          }
+        }
+      }
+    },
+    "Hongyan uploads by itself while it stays awake.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "保持唤醒期间，鸿雁 自己上传。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "起動している間、鴻雁 が自分でアップロードします。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있는 동안 Hongyan가 직접 업로드합니다."
+          }
+        }
+      }
+    },
+    "How Hongyan works": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鸿雁 的工作方式"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "鴻雁 のしくみ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hongyan 작동 방식"
           }
         }
       }
@@ -771,24 +969,24 @@
         }
       }
     },
-    "Keep Shoebox running": {
+    "Keep Hongyan running": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "让 Shoebox 保持运行"
+            "value": "让 鸿雁 保持运行"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shoebox の実行を続ける"
+            "value": "鴻雁 の実行を続ける"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shoebox 계속 실행"
+            "value": "Hongyan 계속 실행"
           }
         }
       }
@@ -1321,119 +1519,6 @@
         }
       }
     },
-    "Shoebox": {
-      "shouldTranslate": false
-    },
-    "Shoebox keeps the latest %@ backups and deletes older ones.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shoebox 保留最近 %@ 份备份，并删除更早的备份。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shoebox は最新の %@ 件を保持し、古いバックアップを削除します。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shoebox는 최근 백업 %@개를 보관하고 오래된 백업을 삭제합니다."
-          }
-        }
-      }
-    },
-    "Shoebox needs Full Access to photos. Change it in Settings › Privacy › Photos.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shoebox 需要照片的完全访问权限。请在“设置 › 隐私 › 照片”中更改。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shoebox には写真へのフルアクセスが必要です。「設定 › プライバシー › 写真」で変更してください。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shoebox에는 사진 전체 접근 권한이 필요합니다. 설정 › 개인정보 보호 › 사진에서 변경하세요."
-          }
-        }
-      }
-    },
-    "Shoebox needs location access to stay awake. Change it in Settings › Privacy › Location Services.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shoebox 需要位置权限才能保持唤醒。请在“设置 › 隐私 › 定位服务”中更改。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "起動を維持するには位置情報へのアクセスが必要です。「設定 › プライバシー › 位置情報サービス」で変更してください。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "깨어 있으려면 위치 접근 권한이 필요합니다. 설정 › 개인정보 보호 › 위치 서비스에서 변경하세요."
-          }
-        }
-      }
-    },
-    "Shoebox starts a new backup after the number of days you set. iOS picks the exact time.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "经过你设置的天数后，Shoebox 会开始新的备份。具体时间由 iOS 决定。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "設定した日数が過ぎると、Shoebox は新しいバックアップを開始します。正確な時刻は iOS が決めます。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "설정한 일수가 지나면 Shoebox가 새 백업을 시작합니다. 정확한 시간은 iOS가 정합니다."
-          }
-        }
-      }
-    },
-    "Shoebox uploads by itself while it stays awake.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "保持唤醒期间，Shoebox 自己上传。"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "起動している間、Shoebox が自分でアップロードします。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "깨어 있는 동안 Shoebox가 직접 업로드합니다."
-          }
-        }
-      }
-    },
     "Show sample data": {
       "localizations": {
         "zh-Hans": {
@@ -1522,24 +1607,24 @@
         }
       }
     },
-    "Starts when you open Shoebox during a backup or tap Back up now. Stops when the backup is done or when you swipe Shoebox away. Uses more battery. Apple does not allow this in App Store apps.": {
+    "Starts when you open Hongyan during a backup or tap Back up now. Stops when the backup is done or when you swipe Hongyan away. Uses more battery. Apple does not allow this in App Store apps.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在备份期间打开 Shoebox 或轻点“立即备份”时开始。备份完成或你将 Shoebox 划掉时停止。会消耗更多电量。App Store 中的 App 不允许这样做。"
+            "value": "在备份期间打开 鸿雁 或轻点“立即备份”时开始。备份完成或你将 鸿雁 划掉时停止。会消耗更多电量。App Store 中的 App 不允许这样做。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "バックアップ中に Shoebox を開くか「今すぐバックアップ」をタップすると始まります。バックアップが終わるか Shoebox を上にスワイプして閉じると止まります。バッテリーを多く使います。App Store のアプリでは Apple が認めていません。"
+            "value": "バックアップ中に 鴻雁 を開くか「今すぐバックアップ」をタップすると始まります。バックアップが終わるか 鴻雁 を上にスワイプして閉じると止まります。バッテリーを多く使います。App Store のアプリでは Apple が認めていません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "백업 중에 Shoebox를 열거나 '지금 백업'을 탭하면 시작합니다. 백업이 끝나거나 Shoebox를 쓸어 올려 닫으면 멈춥니다. 배터리를 더 사용합니다. App Store 앱에서는 Apple이 허용하지 않습니다."
+            "value": "백업 중에 Hongyan를 열거나 '지금 백업'을 탭하면 시작합니다. 백업이 끝나거나 Hongyan를 쓸어 올려 닫으면 멈춥니다. 배터리를 더 사용합니다. App Store 앱에서는 Apple이 허용하지 않습니다."
           }
         }
       }
@@ -1610,6 +1695,28 @@
         }
       }
     },
+    "Su Wu, a Han envoy, was held by the Xiongnu for 19 years. Then a Han envoy said that the emperor had shot a goose with a letter from Su Wu on its foot. The Xiongnu let Su Wu go home.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "汉朝使臣苏武被匈奴扣留十九年。后来汉使说，天子射下一只大雁，雁足上系着苏武的书信。匈奴只好放苏武回国。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "漢の使者・蘇武は匈奴に 19 年間とらわれました。のちに漢の使者が「天子が射落とした雁の足に、蘇武の手紙が結ばれていた」と告げます。匈奴は蘇武を帰国させました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한나라 사신 소무는 흉노에게 19년 동안 붙잡혀 있었습니다. 뒤에 한나라 사신이 '황제가 쏘아 떨어뜨린 기러기 발에 소무의 편지가 묶여 있었다'고 말했습니다. 흉노는 소무를 돌려보냈습니다."
+          }
+        }
+      }
+    },
     "Test connection": {
       "localizations": {
         "zh-Hans": {
@@ -1632,24 +1739,24 @@
         }
       }
     },
-    "The last file of each backup. A backup without it is not complete, and Shoebox never counts it.": {
+    "The last file of each backup. A backup without it is not complete, and Hongyan never counts it.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "每份备份的最后一个文件。没有它的备份不完整，Shoebox 不会计入。"
+            "value": "每份备份的最后一个文件。没有它的备份不完整，鸿雁 不会计入。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "各バックアップの最後のファイル。これがないバックアップは未完了で、Shoebox は数えません。"
+            "value": "各バックアップの最後のファイル。これがないバックアップは未完了で、鴻雁 は数えません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "각 백업의 마지막 파일. 이 파일이 없는 백업은 완료되지 않은 것으로, Shoebox가 세지 않습니다."
+            "value": "각 백업의 마지막 파일. 이 파일이 없는 백업은 완료되지 않은 것으로, Hongyan가 세지 않습니다."
           }
         }
       }
@@ -1698,24 +1805,24 @@
         }
       }
     },
-    "Turn it on to back up while Shoebox is closed.": {
+    "Turn it on to back up while Hongyan is closed.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "开启后，Shoebox 关闭时也会备份。"
+            "value": "开启后，鸿雁 关闭时也会备份。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "オンにすると、Shoebox を閉じていてもバックアップします。"
+            "value": "オンにすると、鴻雁 を閉じていてもバックアップします。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "켜면 Shoebox가 닫혀 있어도 백업합니다."
+            "value": "켜면 Hongyan가 닫혀 있어도 백업합니다."
           }
         }
       }
@@ -1764,46 +1871,46 @@
         }
       }
     },
-    "Uploads continue when Shoebox is closed or the phone is locked.": {
+    "Uploads continue when Hongyan is closed or the phone is locked.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shoebox 关闭或手机锁定时，上传会继续。"
+            "value": "鸿雁 关闭或手机锁定时，上传会继续。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shoebox を閉じても、iPhone をロックしても、アップロードは続きます。"
+            "value": "鴻雁 を閉じても、iPhone をロックしても、アップロードは続きます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shoebox가 닫히거나 휴대폰이 잠겨도 업로드가 계속됩니다."
+            "value": "Hongyan가 닫히거나 휴대폰이 잠겨도 업로드가 계속됩니다."
           }
         }
       }
     },
-    "Uses coarse location only. iOS shows the blue location indicator. Shoebox does not store your location.": {
+    "Uses coarse location only. iOS shows the blue location indicator. Hongyan does not store your location.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "只使用大致位置。iOS 会显示蓝色定位标志。Shoebox 不保存你的位置。"
+            "value": "只使用大致位置。iOS 会显示蓝色定位标志。鸿雁 不保存你的位置。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "おおよその位置情報だけを使います。iOS は青い位置情報インジケータを表示します。Shoebox は位置情報を保存しません。"
+            "value": "おおよその位置情報だけを使います。iOS は青い位置情報インジケータを表示します。鴻雁 は位置情報を保存しません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "대략적인 위치만 사용합니다. iOS가 파란색 위치 표시를 보여 줍니다. Shoebox는 위치를 저장하지 않습니다."
+            "value": "대략적인 위치만 사용합니다. iOS가 파란색 위치 표시를 보여 줍니다. Hongyan는 위치를 저장하지 않습니다."
           }
         }
       }
@@ -1852,24 +1959,24 @@
         }
       }
     },
-    "When a new backup is complete, Shoebox deletes the oldest backups above this number.": {
+    "When a new backup is complete, Hongyan deletes the oldest backups above this number.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "新备份完成后，Shoebox 会删除超出此数量的最旧备份。"
+            "value": "新备份完成后，鸿雁 会删除超出此数量的最旧备份。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "新しいバックアップが完了すると、Shoebox はこの数を超えた古いバックアップを削除します。"
+            "value": "新しいバックアップが完了すると、鴻雁 はこの数を超えた古いバックアップを削除します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "새 백업이 완료되면 Shoebox는 이 개수를 넘는 가장 오래된 백업을 삭제합니다."
+            "value": "새 백업이 완료되면 Hongyan는 이 개수를 넘는 가장 오래된 백업을 삭제합니다."
           }
         }
       }
@@ -1918,24 +2025,24 @@
         }
       }
     },
-    "Your own S3-compatible bucket, for example Cloudflare R2. Shoebox needs a key that can read, write and delete.": {
+    "Your own S3-compatible bucket, for example Cloudflare R2. Hongyan needs a key that can read, write and delete.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "你自己的 S3 兼容存储桶，例如 Cloudflare R2。Shoebox 需要可读、可写、可删除的密钥。"
+            "value": "你自己的 S3 兼容存储桶，例如 Cloudflare R2。鸿雁 需要可读、可写、可删除的密钥。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "自分の S3 互換バケット（例：Cloudflare R2）。Shoebox には読み取り・書き込み・削除ができるキーが必要です。"
+            "value": "自分の S3 互換バケット（例：Cloudflare R2）。鴻雁 には読み取り・書き込み・削除ができるキーが必要です。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "직접 소유한 S3 호환 버킷(예: Cloudflare R2). Shoebox에는 읽기, 쓰기, 삭제가 가능한 키가 필요합니다."
+            "value": "직접 소유한 S3 호환 버킷(예: Cloudflare R2). Hongyan에는 읽기, 쓰기, 삭제가 가능한 키가 필요합니다."
           }
         }
       }
@@ -2012,24 +2119,24 @@
         }
       }
     },
-    "iOS uploads the photos for Shoebox, also when the app is closed or the phone is locked.": {
+    "iOS uploads the photos for Hongyan, also when the app is closed or the phone is locked.": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "即使 App 已关闭或手机已锁定，iOS 也会为 Shoebox 上传照片。"
+            "value": "即使 App 已关闭或手机已锁定，iOS 也会为 鸿雁 上传照片。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アプリを閉じていても、iPhone をロックしていても、iOS が Shoebox の代わりに写真をアップロードします。"
+            "value": "アプリを閉じていても、iPhone をロックしていても、iOS が 鴻雁 の代わりに写真をアップロードします。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "앱이 닫혀 있거나 휴대폰이 잠겨 있어도 iOS가 Shoebox 대신 사진을 업로드합니다."
+            "value": "앱이 닫혀 있거나 휴대폰이 잠겨 있어도 iOS가 Hongyan 대신 사진을 업로드합니다."
           }
         }
       }

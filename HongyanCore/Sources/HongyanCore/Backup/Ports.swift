@@ -70,6 +70,11 @@ public protocol SnapshotStore: AnyObject {
     /// Deletes up to `maxBatches` × 1000 objects of a snapshot. Returns true
     /// when nothing is left under its prefix.
     func deleteSnapshot(_ id: SnapshotID, maxBatches: Int) async throws -> (done: Bool, batchesUsed: Int)
+    /// Delta sync: the index in the bucket, or nil if there is none.
+    func loadSyncIndex(key: String) async throws -> SyncIndex?
+    func saveSyncIndex(_ index: SyncIndex, key: String) async throws
+    /// Every object key under a prefix.
+    func listKeys(prefix: String) async throws -> Set<String>
 }
 
 /// SnapshotStore backed by S3Client.
@@ -102,6 +107,19 @@ public final class S3SnapshotStore: SnapshotStore {
             result.append(RemoteSnapshot(id: id, isComplete: complete))
         }
         return result.sorted { $0.id < $1.id }
+    }
+
+    public func loadSyncIndex(key: String) async throws -> SyncIndex? {
+        guard let data = try await client.getObject(key: key) else { return nil }
+        return try SyncIndex.decode(data)
+    }
+
+    public func saveSyncIndex(_ index: SyncIndex, key: String) async throws {
+        try await client.putObject(key: key, body: index.encoded(), contentType: "application/json")
+    }
+
+    public func listKeys(prefix: String) async throws -> Set<String> {
+        Set(try await client.listAllKeys(prefix: prefix))
     }
 
     public func deleteSnapshot(_ id: SnapshotID, maxBatches: Int) async throws -> (done: Bool, batchesUsed: Int) {

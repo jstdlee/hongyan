@@ -67,6 +67,72 @@
         }
       }
     },
+    "%@ new or changed": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 个新增或修改"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新規・変更 %@ 件"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새로 추가·변경 %@개"
+          }
+        }
+      }
+    },
+    "%@ new · %@ unchanged": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 个新文件 · %2$@ 个未变"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新規 %1$@ 件 · 変更なし %2$@ 件"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 파일 %1$@개 · 변경 없음 %2$@개"
+          }
+        }
+      }
+    },
+    "%@ repaired": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 个已修复"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "修復 %@ 件"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복구 %@개"
+          }
+        }
+      }
+    },
     "%@ skipped": {
       "localizations": {
         "zh-Hans": {
@@ -85,6 +151,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@개 건너뜀"
+          }
+        }
+      }
+    },
+    "%@ unchanged": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 个未变"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "変更なし %@ 件"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "변경 없음 %@개"
           }
         }
       }
@@ -595,6 +683,28 @@
         }
       }
     },
+    "Each sync uploads only new and edited photos. Photos deleted on the phone stay in the bucket.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每次同步只上传新的和编辑过的照片。在手机上删除的照片仍保留在存储桶中。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "毎回、新しい写真と編集した写真だけをアップロードします。iPhone で削除した写真もバケットに残ります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "매번 새 사진과 편집한 사진만 업로드합니다. 휴대폰에서 삭제한 사진도 버킷에 남습니다."
+          }
+        }
+      }
+    },
     "Edited versions": {
       "localizations": {
         "zh-Hans": {
@@ -701,6 +811,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "폴더"
+          }
+        }
+      }
+    },
+    "Full copies": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完整副本"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完全コピー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체 사본"
           }
         }
       }
@@ -925,6 +1057,28 @@
         }
       }
     },
+    "How backups are kept in the bucket.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份在存储桶中的保存方式。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バケットにバックアップを保存する方法。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "버킷에 백업을 보관하는 방식."
+          }
+        }
+      }
+    },
     "Include": {
       "localizations": {
         "zh-Hans": {
@@ -1141,6 +1295,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "매니페스트"
+          }
+        }
+      }
+    },
+    "Mode": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模式"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모드"
           }
         }
       }
@@ -1713,6 +1889,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "한나라 사신 소무는 흉노에게 19년 동안 붙잡혀 있었습니다. 뒤에 한나라 사신이 '황제가 쏘아 떨어뜨린 기러기 발에 소무의 편지가 묶여 있었다'고 말했습니다. 흉노는 소무를 돌려보냈습니다."
+          }
+        }
+      }
+    },
+    "Sync changes": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同步变化"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "変更を同期"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "변경 사항 동기화"
+          }
+        }
+      }
+    },
+    "Sync changes: one folder, library/. Each sync uploads only new and edited photos. It first checks the bucket, uploads missing files again, and continues where it stopped. iOS picks the exact time.": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同步变化：只用一个文件夹 library/。每次同步只上传新的和编辑过的照片。它会先检查存储桶，重新上传缺失的文件，并从中断处继续。具体时间由 iOS 决定。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "変更を同期：フォルダは library/ の 1 つだけです。毎回、新しい写真と編集した写真だけをアップロードします。最初にバケットを確認し、なくなったファイルを再アップロードし、止まったところから続けます。正確な時刻は iOS が決めます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "변경 사항 동기화: library/ 폴더 하나만 씁니다. 매번 새 사진과 편집한 사진만 업로드합니다. 먼저 버킷을 확인하고, 없어진 파일을 다시 올리고, 멈춘 곳에서 이어 갑니다. 정확한 시간은 iOS가 정합니다."
           }
         }
       }

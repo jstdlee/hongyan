@@ -2,7 +2,7 @@
 
 Two layers:
 
-1. **Automated (`scripts/mac.sh test`, iOS Simulator):** 154 XCTest cases over
+1. **Automated (`scripts/mac.sh test`, iOS Simulator):** 177 XCTest cases over
    HongyanCore: SigV4 (AWS published vectors), S3 client, key layout, schedule,
    retention, state files, and the full backup engine with fake PhotoKit, fake job
    system and fake bucket. `scripts/mac.sh build` also builds the app and extension for Simulator and device.
@@ -26,6 +26,8 @@ Mark each run with the date, device, iOS version, provider and result.
 | `FailureClassifierTests` | retry until max, permanent URL errors, unknown errors |
 | `S3XMLTests`, `S3ClientTests`, `S3SnapshotStoreTests` | list/delete/error XML, truncated XML, escaping, signed PUT/HEAD/LIST/DELETE, Content-MD5, pagination, manifest-last deletion, delete budget, per-key delete errors |
 | `StateStoreTests`, `FileLockTests` | state round trip, corrupt state recovery, 5k-asset plan, append log, cleanup, history cap, manifest JSON format, cross-instance locking |
+| `SyncEngineTests` | delta sync: default mode, old settings decode, first sync into `library/`, local + bucket index, round record, no changes → no uploads, only new/edited upload, deleted photos stay, verify re-uploads missing files, listing failure, lost local state continues from bucket index, no index anywhere → adopt, interrupted round without duplicates, checkpoints, scan budget, failed upload not recorded, schedule |
+| `R2IntegrationTests` | real bucket (skipped without `HONGYAN_IT_*`): the 7 delta-sync rounds above with real presigned PUTs + full copies with retention. Run: `scripts/mac.sh r2test`. Last run: `docs/r2-test-run.md` |
 | `BackupEngineTests` | not configured / missing keys / bad bucket / endpoint outside URL base / no photo access; first run; presigned destinations; full lifecycle + manifest; temp cleanup; empty library; not due / due / interval from start; Back up now (+ during active); same-second ids; job limit across passes; resources spanning batches; cursor resume; limitExceeded atomicity; stop flag; photos added / deleted mid-snapshot; video and Live Photo toggles; retry with fresh URL; give up after N; permanent errors; retry of deleted asset; manifest upload failure; lost jobs; foreign jobs; duplicate success; retention keep N / abandoned partials / spread over passes / list failure / after settings change; lock held; restart mid-snapshot |
 
 ### Automated tests still worth adding

@@ -14,11 +14,19 @@ public struct BackupSettings: Codable, Equatable, Sendable {
     /// Upper bound of DeleteObjects calls per engine run, so retention of a
     /// huge snapshot is spread over several runs.
     public var maxDeleteBatchesPerRun: Int
+    /// nil in settings saved before delta sync existed; see `backupMode`.
+    public var mode: BackupMode?
+    /// Delta sync: assets checked per engine pass, so a big library is
+    /// checked over several passes.
+    public var scanBudgetPerPass: Int?
+    /// Delta sync: upload the index to the bucket after this many files.
+    public var checkpointEvery: Int?
 
     public init(s3: S3Config? = nil, intervalDays: Int = 7, keepLatest: Int = 3,
                 resources: ResourcePolicy = ResourcePolicy(),
                 presignSeconds: Int = SigV4Signer.maxPresignSeconds,
-                maxAttemptsPerFile: Int = 4, maxDeleteBatchesPerRun: Int = 20) {
+                maxAttemptsPerFile: Int = 4, maxDeleteBatchesPerRun: Int = 20,
+                mode: BackupMode? = nil, scanBudgetPerPass: Int? = nil, checkpointEvery: Int? = nil) {
         self.s3 = s3
         self.intervalDays = intervalDays
         self.keepLatest = keepLatest
@@ -26,7 +34,15 @@ public struct BackupSettings: Codable, Equatable, Sendable {
         self.presignSeconds = presignSeconds
         self.maxAttemptsPerFile = maxAttemptsPerFile
         self.maxDeleteBatchesPerRun = maxDeleteBatchesPerRun
+        self.mode = mode
+        self.scanBudgetPerPass = scanBudgetPerPass
+        self.checkpointEvery = checkpointEvery
     }
+
+    /// Delta sync unless full copies were chosen.
+    public var backupMode: BackupMode { mode ?? .sync }
+    public var scanBudget: Int { max(1, scanBudgetPerPass ?? 2_000) }
+    public var checkpointInterval: Int { max(1, checkpointEvery ?? 500) }
 
     public var schedule: BackupSchedule { BackupSchedule(intervalDays: intervalDays) }
     public var retention: RetentionPolicy { RetentionPolicy(keepLatest: keepLatest) }

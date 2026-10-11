@@ -133,20 +133,32 @@ private struct ScheduleSection: View {
 
     var body: some View {
         Section {
+            Picker(selection: $model.backupMode) {
+                Text("Sync changes").tag(BackupMode.sync)
+                Text("Full copies").tag(BackupMode.snapshot)
+            } label: {
+                RowLabel(title: "Mode", detail: "How backups are kept in the bucket.")
+            }
             Stepper(value: $model.intervalDays, in: BackupSchedule.dayRange) {
                 LabeledContent("Back up every") {
                     Text("^[\(model.intervalDays) day](inflect: true)").monospacedDigit()
                 }
             }
-            Stepper(value: $model.keepLatest, in: RetentionPolicy.keepRange) {
-                LabeledContent("Keep") {
-                    Text("^[\(model.keepLatest) backup](inflect: true)").monospacedDigit()
+            if model.backupMode == .snapshot {
+                Stepper(value: $model.keepLatest, in: RetentionPolicy.keepRange) {
+                    LabeledContent("Keep") {
+                        Text("^[\(model.keepLatest) backup](inflect: true)").monospacedDigit()
+                    }
                 }
             }
         } header: {
             Text("Schedule")
         } footer: {
-            Text("Each backup is a full copy of your library. iOS picks the exact time, usually while charging on Wi-Fi.")
+            if model.backupMode == .sync {
+                Text("Sync changes: one folder, library/. Each sync uploads only new and edited photos. It first checks the bucket, uploads missing files again, and continues where it stopped. iOS picks the exact time.")
+            } else {
+                Text("Each backup is a full copy of your library. iOS picks the exact time, usually while charging on Wi-Fi.")
+            }
         }
         .sensoryFeedback(.selection, trigger: model.intervalDays)
         .sensoryFeedback(.selection, trigger: model.keepLatest)

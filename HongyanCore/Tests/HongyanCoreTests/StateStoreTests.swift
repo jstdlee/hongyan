@@ -78,6 +78,26 @@ final class StateStoreTests: XCTestCase {
         XCTAssertEqual(try JSONDecoder().decode([SnapshotID].self, from: Data("[\"20260101T000000Z\"]".utf8)), [id])
     }
 
+    func testSyncIndexStoreRoundTrip() throws {
+        let dir = TempDir()
+        let store = try FileStateStore(directory: dir.url)
+        XCTAssertNil(try store.loadSyncIndex())
+        let index = SyncIndex(updatedAt: id.date, entries: ["k": SyncEntry(asset: "a", fingerprint: "1", uploadedAt: id.date)])
+        try store.saveSyncIndex(index)
+        XCTAssertEqual(try store.loadSyncIndex(), index)
+        try store.saveRemoteExtras(["x", "y"], for: id)
+        XCTAssertEqual(try store.loadRemoteExtras(for: id), ["x", "y"])
+        try store.removeSnapshotFiles(for: id)
+        XCTAssertEqual(try store.loadRemoteExtras(for: id), [])
+        XCTAssertNotNil(try store.loadSyncIndex(), "the index outlives a round")
+    }
+
+    func testCorruptSyncIndexCountsAsNone() throws {
+        let dir = TempDir()
+        try Data("{oops".utf8).write(to: dir.url.appendingPathComponent("sync-index.json"))
+        XCTAssertNil(try FileStateStore(directory: dir.url).loadSyncIndex())
+    }
+
     func testManifestRoundTrip() throws {
         let m = Manifest(snapshotID: id, startedAt: id.date, completedAt: id.date.addingTimeInterval(60),
                          assetCount: 2, skippedAssets: 1, files: ["a", "b"], failed: [FailedFile(key: "c", reason: "x")])

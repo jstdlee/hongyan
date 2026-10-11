@@ -32,9 +32,19 @@ public struct SnapshotSummary: Codable, Equatable, Sendable {
     public var uploadedFiles: Int
     public var failedFiles: Int
     public var skippedAssets: Int
+    // Delta sync (nil for full copies and for summaries saved before v0.3).
+    public var mode: BackupMode?
+    public var unchangedFiles: Int?
+    public var adoptedFiles: Int?
+    public var missingRemote: Int?
 
     public init(id: SnapshotID, startedAt: Date, completedAt: Date, assetCount: Int,
-                uploadedFiles: Int, failedFiles: Int, skippedAssets: Int) {
+                uploadedFiles: Int, failedFiles: Int, skippedAssets: Int, mode: BackupMode? = nil,
+                unchangedFiles: Int? = nil, adoptedFiles: Int? = nil, missingRemote: Int? = nil) {
+        self.mode = mode
+        self.unchangedFiles = unchangedFiles
+        self.adoptedFiles = adoptedFiles
+        self.missingRemote = missingRemote
         self.id = id
         self.startedAt = startedAt
         self.completedAt = completedAt
@@ -61,11 +71,14 @@ public struct InFlightJob: Codable, Equatable, Sendable {
     public var assetID: String
     public var resource: ResourceInfo
     public var attempts: Int
+    /// Delta sync: the asset version being uploaded.
+    public var fingerprint: String?
 
-    public init(assetID: String, resource: ResourceInfo, attempts: Int) {
+    public init(assetID: String, resource: ResourceInfo, attempts: Int, fingerprint: String? = nil) {
         self.assetID = assetID
         self.resource = resource
         self.attempts = attempts
+        self.fingerprint = fingerprint
     }
 }
 
@@ -75,6 +88,7 @@ public struct PendingRetry: Codable, Equatable, Sendable {
     public var resource: ResourceInfo
     /// Failures so far.
     public var attempts: Int
+    public var fingerprint: String? = nil
 }
 
 public struct FailedFile: Codable, Equatable, Sendable {
@@ -93,6 +107,18 @@ public struct ActiveSnapshot: Codable, Equatable, Sendable {
     public var uploadedCount = 0
     public var skippedAssets = 0
     public var failed: [FailedFile] = []
+    // Delta sync
+    public var mode: BackupMode?
+    /// Files already in the bucket with the same version: not uploaded.
+    public var unchangedFiles: Int?
+    /// Files found in the bucket but not in the index: recorded, not uploaded.
+    public var adoptedFiles: Int?
+    /// Index entries whose file was missing in the bucket: uploaded again.
+    public var missingRemote: Int?
+    /// Files recorded in the index when it was last uploaded to the bucket.
+    public var checkpointedAt: Int?
+
+    public var isSync: Bool { mode == .sync }
 
     public init(id: SnapshotID, startedAt: Date, totalAssets: Int) {
         self.id = id
@@ -127,5 +153,45 @@ public struct Manifest: Codable, Equatable, Sendable {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return try decoder.decode(Manifest.self, from: data)
+    }
+}
+
+/// Delta sync: which file in `library/` holds which asset version. Kept
+/// locally (sync-index.json) and in the bucket (`.hongyan/index.json`), so a
+/// sync can continue after an interruption, a reinstall or on a new phone.
+public struct SyncIndex: Codable, Equatable, Sendable {
+    public var formatVersion = 1
+    public var updatedAt: Date
+    /// Keyed by object key.
+    public var entries: [String: SyncEntry]
+
+    public init(updatedAt: Date, entries: [String: SyncEntry] = [:]) {
+        self.updatedAt = updatedAt
+        self.entries = entries
+    }
+
+    public func encoded() throws -> Data {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        encoder.dateEncodingStrategy = .iso8601
+        return try encoder.encode(self)
+    }
+
+    public static func decode(_ data: Data) throws -> SyncIndex {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(SyncIndex.self, from: data)
+    }
+}
+
+public struct SyncEntry: Codable, Equatable, Sendable {
+    public var asset: String
+    public var fingerprint: String
+    public var uploadedAt: Date
+
+    public init(asset: String, fingerprint: String, uploadedAt: Date) {
+        self.asset = asset
+        self.fingerprint = fingerprint
+        self.uploadedAt = uploadedAt
     }
 }

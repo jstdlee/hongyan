@@ -33,6 +33,16 @@ public struct S3Client: Sendable {
         _ = try await send(request, payload: body)
     }
 
+    /// The object's bytes, or nil on 404.
+    public func getObject(key: String) async throws -> Data? {
+        let request = HTTPRequest(method: "GET", url: config.objectURL(key: key))
+        let signed = signer.sign(request, payloadHash: SigV4Signer.emptyPayloadHash, date: clock.now())
+        let response = try await transport.send(signed)
+        if response.isSuccess { return response.body }
+        if response.status == 404 { return nil }
+        throw S3XML.parseError(status: response.status, response.body)
+    }
+
     /// true if the object exists, false on 404.
     public func headObject(key: String) async throws -> Bool {
         let request = HTTPRequest(method: "HEAD", url: config.objectURL(key: key))

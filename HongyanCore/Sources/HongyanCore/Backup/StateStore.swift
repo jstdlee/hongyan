@@ -8,6 +8,11 @@ public protocol StateStore: AnyObject {
     func appendUploaded(_ keys: [String], for id: SnapshotID) throws
     func loadUploaded(for id: SnapshotID) throws -> [String]
     func removeSnapshotFiles(for id: SnapshotID) throws
+    func loadSyncIndex() throws -> SyncIndex?
+    func saveSyncIndex(_ index: SyncIndex) throws
+    /// Keys found in the bucket but not in the index at the start of a round.
+    func saveRemoteExtras(_ keys: Set<String>, for id: SnapshotID) throws
+    func loadRemoteExtras(for id: SnapshotID) throws -> Set<String>
 }
 
 /// JSON files in a directory (the App Group container on iOS):
@@ -15,6 +20,8 @@ public protocol StateStore: AnyObject {
 ///     state.json
 ///     plan-<id>.json        asset local identifiers, in upload order
 ///     uploaded-<id>.txt     one finished object key per line
+///     sync-index.json       delta sync: object key → asset version
+///     extras-<id>.txt       delta sync: keys in the bucket missing from the index
 public final class FileStateStore: StateStore {
     public let directory: URL
     private let fm = FileManager.default
@@ -27,6 +34,8 @@ public final class FileStateStore: StateStore {
     private var stateURL: URL { directory.appendingPathComponent("state.json") }
     private func planURL(_ id: SnapshotID) -> URL { directory.appendingPathComponent("plan-\(id.rawValue).json") }
     private func uploadedURL(_ id: SnapshotID) -> URL { directory.appendingPathComponent("uploaded-\(id.rawValue).txt") }
+    private func extrasURL(_ id: SnapshotID) -> URL { directory.appendingPathComponent("extras-\(id.rawValue).txt") }
+    private var syncIndexURL: URL { directory.appendingPathComponent("sync-index.json") }
 
     private static let encoder: JSONEncoder = {
         let e = JSONEncoder()
@@ -91,8 +100,29 @@ public final class FileStateStore: StateStore {
     }
 
     public func removeSnapshotFiles(for id: SnapshotID) throws {
-        for url in [planURL(id), uploadedURL(id)] where fm.fileExists(atPath: url.path) {
+        for url in [planURL(id), uploadedURL(id), extrasURL(id)] where fm.fileExists(atPath: url.path) {
             try fm.removeItem(at: url)
         }
+    }
+
+    /// nil when there is no local index yet. A corrupt index counts as none:
+    /// the next round rebuilds it from the bucket.
+    public func loadSyncIndex() throws -> SyncIndex? {
+        guard fm.fileExists(atPath: syncIndexURL.path) else { return nil }
+        return try? SyncIndex.decode(Data(contentsOf: syncIndexURL))
+    }
+
+    public func saveSyncIndex(_ index: SyncIndex) throws {
+        try index.encoded().write(to: syncIndexURL, options: .atomic)
+    }
+
+    public func saveRemoteExtras(_ keys: Set<String>, for id: SnapshotID) throws {
+        try Data(keys.sorted().joined(separator: "\n").utf8).write(to: extrasURL(id), options: .atomic)
+    }
+
+    public func loadRemoteExtras(for id: SnapshotID) throws -> Set<String> {
+        guard fm.fileExists(atPath: extrasURL(id).path) else { return [] }
+        let text = try String(contentsOf: extrasURL(id), encoding: .utf8)
+        return Set(text.split(separator: "\n", omittingEmptySubsequences: true).map(String.init))
     }
 }

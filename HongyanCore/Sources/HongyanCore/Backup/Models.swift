@@ -45,11 +45,27 @@ public enum ResourceKind: String, Codable, Sendable, CaseIterable {
 public struct AssetInfo: Equatable, Sendable {
     public var localIdentifier: String
     public var creationDate: Date?
+    /// Changes when the photo is edited; delta sync uploads it again then.
+    public var modificationDate: Date?
 
-    public init(localIdentifier: String, creationDate: Date?) {
+    public init(localIdentifier: String, creationDate: Date?, modificationDate: Date? = nil) {
         self.localIdentifier = localIdentifier
         self.creationDate = creationDate
+        self.modificationDate = modificationDate
     }
+
+    /// Version of the asset, stored in the sync index.
+    public var fingerprint: String {
+        modificationDate.map { String(Int64(($0.timeIntervalSince1970 * 1000).rounded())) } ?? "-"
+    }
+}
+
+/// How backups are stored.
+public enum BackupMode: String, Codable, Sendable, CaseIterable {
+    /// One folder (`library/`) that gets only new and changed files.
+    case sync
+    /// A full copy of the library in a new folder each time.
+    case snapshot
 }
 
 public struct ResourceInfo: Equatable, Sendable, Codable {

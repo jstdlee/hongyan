@@ -13,11 +13,13 @@ public enum EngineOutcome: Equatable, Sendable {
 /// background refresh). Each pass does a bounded amount of work:
 ///
 /// 1. Acknowledge finished upload jobs, recording successes and failures.
-/// 2. If no snapshot is active and one is due, start a new one: freeze the
-///    list of assets to back up.
+/// 2. If no round is active and one is due, start a new one: freeze the
+///    list of assets. Delta sync first verifies its index against the bucket.
 /// 3. Create upload jobs (presigned PUTs) until the system job limit is full.
-/// 4. When every job of the snapshot is done, upload manifest.json.
-/// 5. Delete snapshots beyond "keep latest X".
+///    Delta sync skips files whose version is already in the bucket.
+/// 4. When every job is done: full copies upload manifest.json; delta sync
+///    uploads its index and a round record.
+/// 5. Full copies: delete snapshots beyond "keep latest X".
 public final class BackupEngine {
     public let settings: BackupSettings
     public let credentials: S3Credentials?
@@ -121,7 +123,7 @@ public final class BackupEngine {
         if state.active == nil {
             let due = settings.schedule.isDue(lastCompletedStart: state.lastCompleted?.startedAt, now: clock.now())
             if due || state.forceBackupRequested {
-                try startSnapshot(&state)
+                try await startRound(&state)
             }
         }
 
@@ -130,8 +132,13 @@ public final class BackupEngine {
             if !shouldStop() {
                 try createJobs(&state, presigner: presigner, shouldStop: shouldStop)
             }
+            await checkpointIfNeeded(&state)
             if state.active?.isFinished == true {
-                try await finishSnapshot(&state)
+                if state.active?.isSync == true {
+                    try await finishSync(&state)
+                } else {
+                    try await finishSnapshot(&state)
+                }
             }
         }
 
@@ -149,6 +156,7 @@ public final class BackupEngine {
         let finished = try queue.finishedJobs()
         guard !finished.isEmpty else { return }
         var uploadedKeys: [String] = []
+        var syncedEntries: [String: SyncEntry] = [:]
         let classifier = FailureClassifier(maxAttempts: settings.maxAttemptsPerFile)
 
         if var active = state.active, let s3 = settings.s3 {
@@ -161,11 +169,14 @@ public final class BackupEngine {
                 case .succeeded:
                     uploadedKeys.append(key)
                     active.uploadedCount += 1
+                    syncedEntries[key] = SyncEntry(asset: flight.assetID, fingerprint: flight.fingerprint ?? "-",
+                                                   uploadedAt: clock.now())
                 case .failed, .cancelled:
                     let attempts = flight.attempts + 1
                     switch classifier.decide(errorDomain: job.errorDomain, errorCode: job.errorCode, attempts: attempts) {
                     case .retry:
-                        active.retries.append(PendingRetry(key: key, assetID: flight.assetID, resource: flight.resource, attempts: attempts))
+                        active.retries.append(PendingRetry(key: key, assetID: flight.assetID, resource: flight.resource,
+                                                           attempts: attempts, fingerprint: flight.fingerprint))
                     case .giveUp(let reason):
                         active.failed.append(FailedFile(key: key, reason: reason))
                     }
@@ -174,6 +185,12 @@ public final class BackupEngine {
                 }
             }
             try store.appendUploaded(uploadedKeys, for: active.id)
+            if active.isSync && !syncedEntries.isEmpty {
+                var index = try store.loadSyncIndex() ?? SyncIndex(updatedAt: clock.now())
+                index.entries.merge(syncedEntries) { _, new in new }
+                index.updatedAt = clock.now()
+                try store.saveSyncIndex(index)
+            }
             state.active = active
         }
         // Persist before acknowledging: if we die in between, the jobs show up
@@ -191,7 +208,8 @@ public final class BackupEngine {
         guard let processing = try queue.processingJobCount(), processing == 0,
               try queue.finishedJobs().isEmpty else { return }
         for (key, flight) in active.inFlight.sorted(by: { $0.key < $1.key }) {
-            active.retries.append(PendingRetry(key: key, assetID: flight.assetID, resource: flight.resource, attempts: flight.attempts))
+            active.retries.append(PendingRetry(key: key, assetID: flight.assetID, resource: flight.resource,
+                                               attempts: flight.attempts, fingerprint: flight.fingerprint))
         }
         active.inFlight.removeAll()
         state.active = active
@@ -199,17 +217,52 @@ public final class BackupEngine {
 
     // MARK: 2. Start
 
-    private func startSnapshot(_ state: inout EngineState) throws {
+    private func startRound(_ state: inout EngineState) async throws {
         let now = clock.now()
         var id = SnapshotID(date: now)
         if let last = state.lastCompleted?.id, id <= last {
-            // Two snapshots in the same second (or clock went back): stay unique and ordered.
+            // Two rounds in the same second (or clock went back): stay unique and ordered.
             id = SnapshotID(date: last.date.addingTimeInterval(1))
+        }
+        let mode = settings.backupMode
+        var verification: (missing: Int, extras: Int)?
+        if mode == .sync {
+            verification = try await verifySyncIndex(roundID: id)
         }
         let assetIDs = try library.allAssetIDs(policy: settings.resources)
         try store.savePlan(assetIDs, for: id)
-        state.active = ActiveSnapshot(id: id, startedAt: now, totalAssets: assetIDs.count)
+        var active = ActiveSnapshot(id: id, startedAt: now, totalAssets: assetIDs.count)
+        active.mode = mode
+        if let verification {
+            active.missingRemote = verification.missing
+            active.unchangedFiles = 0
+            active.adoptedFiles = 0
+            active.checkpointedAt = 0
+        }
+        state.active = active
         state.forceBackupRequested = false
+    }
+
+    /// Delta sync, start of a round:
+    /// 1. No local index (new install, lost state)? Continue from the index in the bucket.
+    /// 2. List `library/`. Index entries whose file is gone are dropped, so
+    ///    those files upload again.
+    /// 3. Files in the bucket that the index doesn't know are kept as
+    ///    "extras": the walk records them without uploading.
+    private func verifySyncIndex(roundID: SnapshotID) async throws -> (missing: Int, extras: Int) {
+        var index = try store.loadSyncIndex()
+        if index?.entries.isEmpty ?? true {
+            index = try await remote.loadSyncIndex(key: layout.syncIndexKey)
+        }
+        var verified = index ?? SyncIndex(updatedAt: clock.now())
+        let remoteKeys = try await remote.listKeys(prefix: layout.libraryRoot)
+        let missing = verified.entries.keys.filter { !remoteKeys.contains($0) }
+        for key in missing { verified.entries[key] = nil }
+        let extras = remoteKeys.subtracting(verified.entries.keys)
+        verified.updatedAt = clock.now()
+        try store.saveSyncIndex(verified)
+        try store.saveRemoteExtras(extras, for: roundID)
+        return (missing.count, extras.count)
     }
 
     // MARK: 3. Create jobs
@@ -225,13 +278,20 @@ public final class BackupEngine {
         var batch: [NewUploadJob] = []
         var batchFlights: [(String, InFlightJob)] = []
 
-        func add(key: String, assetID: String, resource: ResourceInfo, attempts: Int) {
+        func add(key: String, assetID: String, resource: ResourceInfo, attempts: Int, fingerprint: String?) {
             let destination = presigner.presignedPut(key: key, contentType: ContentType.forFilename(resource.originalFilename),
                                                      expires: settings.presignSeconds)
             batch.append(NewUploadJob(assetID: assetID, resource: resource, destination: destination))
-            batchFlights.append((key, InFlightJob(assetID: assetID, resource: resource, attempts: attempts)))
+            batchFlights.append((key, InFlightJob(assetID: assetID, resource: resource, attempts: attempts,
+                                                  fingerprint: fingerprint)))
             capacity -= 1
         }
+
+        // Delta sync: what the bucket already has.
+        let isSync = active.isSync
+        var syncEntries = isSync ? (try store.loadSyncIndex()?.entries ?? [:]) : [:]
+        let extras = isSync ? try store.loadRemoteExtras(for: active.id) : []
+        var adopted = 0, unchanged = 0
 
         // Retries first.
         var retriesTaken = 0
@@ -242,14 +302,17 @@ public final class BackupEngine {
                 active.failed.append(FailedFile(key: retry.key, reason: "Asset was deleted"))
                 continue
             }
-            add(key: retry.key, assetID: retry.assetID, resource: retry.resource, attempts: retry.attempts)
+            add(key: retry.key, assetID: retry.assetID, resource: retry.resource, attempts: retry.attempts,
+                fingerprint: retry.fingerprint)
         }
 
         // Then walk the plan.
         var cursor = active.cursor
         if capacity > 0 && !active.planExhausted {
             let plan = try store.loadPlan(for: active.id)
-            while capacity > 0, cursor.asset < plan.count, !shouldStop() {
+            var scanned = 0
+            while capacity > 0, cursor.asset < plan.count, !shouldStop(), !isSync || scanned < settings.scanBudget {
+                scanned += 1
                 let assetID = plan[cursor.asset]
                 guard let asset = library.asset(id: assetID) else {
                     active.skippedAssets += 1
@@ -257,10 +320,25 @@ public final class BackupEngine {
                     continue
                 }
                 let resources = settings.resources.select(library.resources(assetID: assetID))
-                let keys = layout.objectKeys(snapshot: active.id, asset: asset, resources: resources)
+                let keys = isSync ? layout.libraryKeys(asset: asset, resources: resources)
+                                  : layout.objectKeys(snapshot: active.id, asset: asset, resources: resources)
                 while capacity > 0, cursor.resource < resources.count {
-                    add(key: keys[cursor.resource], assetID: assetID, resource: resources[cursor.resource], attempts: 0)
-                    cursor.resource += 1
+                    let key = keys[cursor.resource]
+                    defer { cursor.resource += 1 }
+                    if isSync {
+                        if let entry = syncEntries[key], entry.fingerprint == asset.fingerprint {
+                            unchanged += 1 // Same version already in the bucket.
+                            continue
+                        }
+                        if syncEntries[key] == nil, extras.contains(key) {
+                            // In the bucket from an earlier install: record it, don't upload.
+                            syncEntries[key] = SyncEntry(asset: assetID, fingerprint: asset.fingerprint, uploadedAt: clock.now())
+                            adopted += 1
+                            continue
+                        }
+                    }
+                    add(key: key, assetID: assetID, resource: resources[cursor.resource], attempts: 0,
+                        fingerprint: isSync ? asset.fingerprint : nil)
                 }
                 if cursor.resource >= resources.count {
                     cursor = PlanCursor(asset: cursor.asset + 1, resource: 0)
@@ -273,13 +351,65 @@ public final class BackupEngine {
             // untouched, so the same work is redone on the next pass.
             try queue.create(batch)
         }
+        if adopted > 0 {
+            var index = try store.loadSyncIndex() ?? SyncIndex(updatedAt: clock.now())
+            index.entries = syncEntries
+            index.updatedAt = clock.now()
+            try store.saveSyncIndex(index)
+        }
+        if isSync {
+            active.unchangedFiles = (active.unchangedFiles ?? 0) + unchanged
+            active.adoptedFiles = (active.adoptedFiles ?? 0) + adopted
+        }
         active.retries.removeFirst(retriesTaken)
         active.cursor = cursor
         for (key, flight) in batchFlights { active.inFlight[key] = flight }
         state.active = active
     }
 
+    /// Delta sync: upload the index every `checkpointInterval` recorded
+    /// files, so the bucket knows the progress if the phone is lost mid-round.
+    /// A failed checkpoint is tried again on the next pass.
+    private func checkpointIfNeeded(_ state: inout EngineState) async {
+        guard var active = state.active, active.isSync else { return }
+        let recorded = active.uploadedCount + (active.adoptedFiles ?? 0)
+        guard recorded - (active.checkpointedAt ?? 0) >= settings.checkpointInterval else { return }
+        do {
+            guard let index = try store.loadSyncIndex() else { return }
+            try await remote.saveSyncIndex(index, key: layout.syncIndexKey)
+            active.checkpointedAt = recorded
+            state.active = active
+        } catch {
+            state.lastError = String(describing: error)
+        }
+    }
+
     // MARK: 4. Finish
+
+    private func finishSync(_ state: inout EngineState) async throws {
+        guard let active = state.active else { return }
+        let uploaded = try store.loadUploaded(for: active.id)
+        var seen = Set<String>()
+        let files = uploaded.filter { seen.insert($0).inserted }
+        let now = clock.now()
+        var index = try store.loadSyncIndex() ?? SyncIndex(updatedAt: now)
+        index.updatedAt = now
+        try store.saveSyncIndex(index)
+        try await remote.saveSyncIndex(index, key: layout.syncIndexKey)
+        let record = Manifest(snapshotID: active.id, startedAt: active.startedAt, completedAt: now,
+                              assetCount: active.totalAssets, skippedAssets: active.skippedAssets,
+                              files: files, failed: active.failed)
+        try await remote.putManifest(record, key: layout.roundRecordKey(active.id))
+
+        state.record(SnapshotSummary(id: active.id, startedAt: active.startedAt, completedAt: now,
+                                     assetCount: active.totalAssets, uploadedFiles: files.count,
+                                     failedFiles: active.failed.count, skippedAssets: active.skippedAssets,
+                                     mode: .sync, unchangedFiles: active.unchangedFiles,
+                                     adoptedFiles: active.adoptedFiles, missingRemote: active.missingRemote))
+        state.active = nil
+        try store.save(state)
+        try? store.removeSnapshotFiles(for: active.id)
+    }
 
     private func finishSnapshot(_ state: inout EngineState) async throws {
         guard let active = state.active else { return }

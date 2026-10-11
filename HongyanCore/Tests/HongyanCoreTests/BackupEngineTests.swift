@@ -23,7 +23,7 @@ final class BackupEngineTests: XCTestCase {
         remote = FakeSnapshotStore(layout: KeyLayout(prefix: "phone"))
         store = try FileStateStore(directory: dir.url)
         clock = FixedClock(Date(timeIntervalSince1970: 1_790_000_000))
-        settings = BackupSettings(s3: s3, intervalDays: 7, keepLatest: 2)
+        settings = BackupSettings(s3: s3, intervalDays: 7, keepLatest: 2, mode: .snapshot)
     }
 
     func engine(credentials: S3Credentials? = nil, lock: FileLock? = nil) -> BackupEngine {

@@ -90,6 +90,25 @@ final class KeyLayoutTests: XCTestCase {
         XCTAssertTrue(keys[2].hasSuffix("_3.jpg"))
     }
 
+    func testLibraryAndMetadataKeys() {
+        let layout = KeyLayout(prefix: "p", timeZone: utc)
+        XCTAssertEqual(layout.libraryRoot, "p/library/")
+        XCTAssertEqual(layout.syncIndexKey, "p/.hongyan/index.json")
+        XCTAssertEqual(layout.roundRecordKey(snap), "p/.hongyan/rounds/20260929T020000Z.json")
+        XCTAssertEqual(KeyLayout(prefix: "").libraryRoot, "library/")
+        let asset = AssetInfo(localIdentifier: "X", creationDate: march)
+        let keys = layout.libraryKeys(asset: asset, resources: [photo("a.jpg")])
+        let hash = String(Digest.sha256Hex("X").prefix(8))
+        XCTAssertEqual(keys, ["p/library/2026/03/a_\(hash).jpg"])
+        XCTAssertFalse(keys[0].hasPrefix(layout.snapshotsRoot))
+    }
+
+    func testFingerprint() {
+        XCTAssertEqual(AssetInfo(localIdentifier: "x", creationDate: nil).fingerprint, "-")
+        let d = Date(timeIntervalSince1970: 1_700_000_000.5)
+        XCTAssertEqual(AssetInfo(localIdentifier: "x", creationDate: nil, modificationDate: d).fingerprint, "1700000000500")
+    }
+
     func testSanitize() {
         XCTAssertEqual(KeyLayout.sanitize("a/b\\c.jpg"), "a_b_c.jpg")
         XCTAssertEqual(KeyLayout.sanitize("  x.jpg \n"), "x.jpg")

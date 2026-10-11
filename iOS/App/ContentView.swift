@@ -183,7 +183,11 @@ private struct ProgressBlock: View {
                 .accessibilityLabel("Backup progress")
                 .accessibilityValue(fraction.formatted(.percent.precision(.fractionLength(0))))
             HStack {
-                Text("\(active.uploadedCount.formatted()) files uploaded")
+                if active.isSync {
+                    Text("\(active.uploadedCount.formatted()) new · \((active.unchangedFiles ?? 0).formatted()) unchanged")
+                } else {
+                    Text("\(active.uploadedCount.formatted()) files uploaded")
+                }
                 Spacer()
                 Text(fraction.formatted(.percent.precision(.fractionLength(0))))
             }
@@ -229,12 +233,25 @@ private struct HistorySection: View {
             Text("History")
         } footer: {
             if !model.state.history.isEmpty {
-                Text("Hongyan keeps the latest \(model.keepLatest.formatted()) backups and deletes older ones.")
+                if model.backupMode == .sync {
+                    Text("Each sync uploads only new and edited photos. Photos deleted on the phone stay in the bucket.")
+                } else {
+                    Text("Hongyan keeps the latest \(model.keepLatest.formatted()) backups and deletes older ones.")
+                }
             }
         }
     }
 
     private func summary(_ item: SnapshotSummary) -> String {
+        if item.mode == .sync {
+            var parts = [String(localized: "\(item.uploadedFiles.formatted()) new or changed"),
+                         String(localized: "\((item.unchangedFiles ?? 0).formatted()) unchanged")]
+            if let missing = item.missingRemote, missing > 0 {
+                parts.append(String(localized: "\(missing.formatted()) repaired"))
+            }
+            if item.failedFiles > 0 { parts.append(String(localized: "\(item.failedFiles.formatted()) failed")) }
+            return parts.joined(separator: " · ")
+        }
         var parts = [String(localized: "\(item.uploadedFiles.formatted()) files")]
         if item.failedFiles > 0 { parts.append(String(localized: "\(item.failedFiles.formatted()) failed")) }
         if item.skippedAssets > 0 { parts.append(String(localized: "\(item.skippedAssets.formatted()) skipped")) }

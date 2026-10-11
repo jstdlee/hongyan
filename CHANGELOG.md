@@ -5,12 +5,27 @@ version into the GitHub release page.
 
 ## v0.3.0 — 2026-10-11
 
+### Added
+
+- **Delta sync** (new default mode, Settings › Schedule › Mode › Sync changes):
+  - One folder, `library/`. Each sync uploads only new and edited photos. Unchanged files are skipped.
+  - The progress is recorded locally and in the bucket: `.hongyan/index.json` (file → photo version),
+    uploaded again every 500 files during a sync and at the end, plus a record per sync in `.hongyan/rounds/`.
+  - Each sync first **verifies** the index against the bucket: files missing in the bucket upload again.
+  - It **continues** after an interruption, a reinstall or on a new phone: it reads the index from the bucket,
+    or, if that is gone too, records the files already in the bucket instead of uploading them again.
+  - Photos deleted on the phone stay in the bucket.
+- "Full copies" (the snapshot mode with Keep latest) is still there.
+- Real-bucket tests (`R2IntegrationTests`, `scripts/mac.sh r2test`). First run against Cloudflare R2:
+  see `docs/r2-test-run.md`.
+
 ### Changed
 
 - **New name: Hongyan 鸿雁** (was Shoebox), from the saying 鸿雁传书, "the goose carries the letter".
   The app shows 鸿雁 in Chinese and 鴻雁 in Japanese.
 - Bundle ID is now `com.jstdlee.hongyan`. It installs as a new app; set up storage again.
 - The repo is now `jstdlee/hongyan`. Old links redirect.
+- GitHub Actions is off; build, test and release on a Mac with `scripts/mac.sh`.
 - Help › About the name tells the story.
 
 ### Fixed

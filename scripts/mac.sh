@@ -3,6 +3,7 @@
 #
 #   scripts/mac.sh setup            install xcodegen + xcbeautify (Homebrew), generate the project
 #   scripts/mac.sh test             run the HongyanCore tests on an iPhone Simulator
+#   scripts/mac.sh r2test           run the real-bucket tests (needs HONGYAN_IT_* env, see below)
 #   scripts/mac.sh build            build app + extension for the Simulator and for a device
 #   scripts/mac.sh shots            demo-mode screenshots into docs/gallery
 #   scripts/mac.sh ipa v0.3.0       unsigned IPA + checksum in dist/
@@ -10,6 +11,8 @@
 #   scripts/mac.sh all              setup, test, build, shots
 #
 # Optional: HONGYAN_UPLOAD_URL_BASE=https://<account>.r2.cloudflarestorage.com scripts/mac.sh ipa v0.3.0
+# r2test:   HONGYAN_IT_ACCOUNT_ID, HONGYAN_IT_BUCKET, HONGYAN_IT_KEY, HONGYAN_IT_SECRET
+#           (uses a random prefix hongyan-it/<id>/ in the bucket and deletes it after)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -29,6 +32,16 @@ sim() { scripts/pick-simulator.sh; }
 test_core() {
   local udid; udid=$(sim)
   (cd HongyanCore && set -o pipefail && xcodebuild test -scheme HongyanCore -destination "id=$udid" | pretty)
+}
+
+r2test() {
+  : "${HONGYAN_IT_ACCOUNT_ID:?}" "${HONGYAN_IT_BUCKET:?}" "${HONGYAN_IT_KEY:?}" "${HONGYAN_IT_SECRET:?}"
+  local udid; udid=$(sim)
+  # xcodebuild passes TEST_RUNNER_<name> to the test process as <name>.
+  export TEST_RUNNER_HONGYAN_IT_ACCOUNT_ID="$HONGYAN_IT_ACCOUNT_ID" TEST_RUNNER_HONGYAN_IT_BUCKET="$HONGYAN_IT_BUCKET" \
+         TEST_RUNNER_HONGYAN_IT_KEY="$HONGYAN_IT_KEY" TEST_RUNNER_HONGYAN_IT_SECRET="$HONGYAN_IT_SECRET"
+  (cd HongyanCore && set -o pipefail && xcodebuild test -scheme HongyanCore -destination "id=$udid" \
+     -only-testing:HongyanCoreTests/R2IntegrationTests | pretty)
 }
 
 build() {
@@ -102,6 +115,7 @@ release() {
 case "${1:-}" in
   setup) setup ;;
   test) test_core ;;
+  r2test) r2test ;;
   build) build ;;
   shots) shots ;;
   ipa) ipa "${2:-}" ;;

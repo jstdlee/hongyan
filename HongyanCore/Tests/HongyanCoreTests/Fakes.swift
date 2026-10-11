@@ -47,8 +47,15 @@ final class FakeLibrary: PhotoLibrarySource {
             resources.append(ResourceInfo(kind: .adjustmentData, originalFilename: "Adjustments.plist", index: resources.count))
             resources.append(ResourceInfo(kind: .fullSizePhoto, originalFilename: "FullSizeRender.heic", index: resources.count))
         }
-        assets.append(Asset(info: AssetInfo(localIdentifier: id, creationDate: date), resources: resources))
+        assets.append(Asset(info: AssetInfo(localIdentifier: id, creationDate: date, modificationDate: date), resources: resources))
         return id
+    }
+
+    /// Simulates an edit in Photos: the asset gets a new version.
+    func modify(_ id: String, at date: Date) {
+        if let i = assets.firstIndex(where: { $0.info.localIdentifier == id }) {
+            assets[i].info.modificationDate = date
+        }
     }
 
     func remove(_ id: String) {
@@ -91,6 +98,8 @@ final class FakeJobQueue: UploadJobQueue {
     /// Force the next create() to throw limitExceeded even if there is room.
     var failNextCreateWithLimit = false
     var createCalls = 0
+    /// Called with the destination URL of every job that succeeds.
+    var onSucceeded: ((URL) -> Void)?
 
     init(jobLimit: Int = 10) {
         self.jobLimit = jobLimit
@@ -145,6 +154,7 @@ final class FakeJobQueue: UploadJobQueue {
                 jobs[i].errorCode = errorCode
             } else {
                 jobs[i].state = .succeeded
+                onSucceeded?(jobs[i].spec.destination.url)
             }
         }
     }
@@ -177,6 +187,11 @@ final class FakeSnapshotStore: SnapshotStore {
     var batchesPerSnapshot: [SnapshotID: Int] = [:]
     private var batchesDone: [SnapshotID: Int] = [:]
     let layout: KeyLayout
+    /// Delta sync: objects in the bucket and the stored index.
+    var objects: Set<String> = []
+    var syncIndexes: [String: SyncIndex] = [:]
+    var saveSyncIndexCalls = 0
+    var failListKeys = false
 
     init(layout: KeyLayout) {
         self.layout = layout
@@ -195,6 +210,18 @@ final class FakeSnapshotStore: SnapshotStore {
             all.append(RemoteSnapshot(id: manifest.snapshotID, isComplete: true))
         }
         return all.sorted { $0.id < $1.id }
+    }
+
+    func loadSyncIndex(key: String) async throws -> SyncIndex? { syncIndexes[key] }
+
+    func saveSyncIndex(_ index: SyncIndex, key: String) async throws {
+        saveSyncIndexCalls += 1
+        syncIndexes[key] = index
+    }
+
+    func listKeys(prefix: String) async throws -> Set<String> {
+        if failListKeys { throw S3Error(status: 503, code: "SlowDown", message: "") }
+        return objects.filter { $0.hasPrefix(prefix) }
     }
 
     func deleteSnapshot(_ id: SnapshotID, maxBatches: Int) async throws -> (done: Bool, batchesUsed: Int) {

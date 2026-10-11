@@ -33,6 +33,29 @@ public struct KeyLayout: Sendable {
         snapshotPrefix(id) + Self.manifestName
     }
 
+    // MARK: Delta sync
+
+    /// `<prefix>/library/`: the one folder that delta sync keeps up to date.
+    public var libraryRoot: String {
+        prefix.isEmpty ? "library/" : "\(prefix)/library/"
+    }
+
+    /// `<prefix>/.hongyan/`: sync index and round records.
+    public var metaRoot: String {
+        prefix.isEmpty ? ".hongyan/" : "\(prefix)/.hongyan/"
+    }
+
+    public var syncIndexKey: String { metaRoot + "index.json" }
+
+    public func roundRecordKey(_ id: SnapshotID) -> String {
+        metaRoot + "rounds/\(id.rawValue).json"
+    }
+
+    /// Keys in `library/` for every selected resource of one asset.
+    public func libraryKeys(asset: AssetInfo, resources: [ResourceInfo]) -> [String] {
+        keys(base: libraryRoot, asset: asset, resources: resources)
+    }
+
     /// Parses a CommonPrefix returned by listing `snapshotsRoot` with delimiter `/`.
     public func snapshotID(fromCommonPrefix commonPrefix: String) -> SnapshotID? {
         guard commonPrefix.hasPrefix(snapshotsRoot) else { return nil }
@@ -43,12 +66,20 @@ public struct KeyLayout: Sendable {
 
     /// Keys for every selected resource of one asset, unique within the asset.
     public func objectKeys(snapshot: SnapshotID, asset: AssetInfo, resources: [ResourceInfo]) -> [String] {
+        keys(base: snapshotPrefix(snapshot), asset: asset, resources: resources)
+    }
+
+    public func objectKey(snapshot: SnapshotID, asset: AssetInfo, resource: ResourceInfo, extraSuffix: String = "") -> String {
+        key(base: snapshotPrefix(snapshot), asset: asset, resource: resource, extraSuffix: extraSuffix)
+    }
+
+    private func keys(base: String, asset: AssetInfo, resources: [ResourceInfo]) -> [String] {
         var used = Set<String>()
         return resources.map { resource in
-            var key = objectKey(snapshot: snapshot, asset: asset, resource: resource)
+            var key = key(base: base, asset: asset, resource: resource)
             var n = 2
             while used.contains(key) {
-                key = objectKey(snapshot: snapshot, asset: asset, resource: resource, extraSuffix: "_\(n)")
+                key = self.key(base: base, asset: asset, resource: resource, extraSuffix: "_\(n)")
                 n += 1
             }
             used.insert(key)
@@ -56,7 +87,7 @@ public struct KeyLayout: Sendable {
         }
     }
 
-    public func objectKey(snapshot: SnapshotID, asset: AssetInfo, resource: ResourceInfo, extraSuffix: String = "") -> String {
+    private func key(base: String, asset: AssetInfo, resource: ResourceInfo, extraSuffix: String = "") -> String {
         let folder: String
         if let date = asset.creationDate {
             var calendar = Calendar(identifier: .gregorian)
@@ -69,7 +100,7 @@ public struct KeyLayout: Sendable {
         let (stem, ext) = Self.splitFilename(Self.sanitize(resource.originalFilename))
         let hash = String(Digest.sha256Hex(asset.localIdentifier).prefix(8))
         let name = "\(stem)_\(hash)\(resource.kind.keySuffix)\(extraSuffix)" + (ext.isEmpty ? "" : ".\(ext)")
-        return "\(snapshotPrefix(snapshot))\(folder)/\(name)"
+        return "\(base)\(folder)/\(name)"
     }
 
     /// Removes path separators and control characters, caps the length.

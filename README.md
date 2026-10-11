@@ -5,10 +5,12 @@
 A small iOS app (Swift, iOS 26.1+) that backs up the whole photo library to
 S3-compatible storage, such as Cloudflare R2, AWS S3, MinIO or Backblaze B2, **in the background**.
 
-- **Full backup per run**: every run is a snapshot, a complete copy of the library
-  under `snapshots/<timestamp>/`.
+- **Delta sync** (default): one folder, `library/`; each sync uploads only new and edited photos.
+  The progress is recorded locally and in the bucket, verified at the start of each sync, and
+  continues after an interruption, a reinstall or on a new phone.
+- **Full copies** (optional): a complete snapshot of the library under `snapshots/<timestamp>/`.
 - **Every N days**: iOS schedules the work, usually while charging on Wi-Fi.
-- **Keep latest X**: older snapshots are deleted automatically.
+- **Keep latest X** (full copies): older snapshots are deleted automatically.
 - **Keep running** (optional): silent audio or location keeps the app awake during a backup, and the
   app uploads by itself. For sideloaded builds; Apple does not allow it in App Store apps.
 - **No encryption** and no third-party dependencies. The app uses only Apple frameworks.
@@ -82,10 +84,23 @@ iOS wakes extension ─┐       ┌─ app opened / Back up now / BG refresh
 Bucket layout:
 
 ```
+Sync changes (default)
+<prefix>/library/2026/09/IMG_1234_1a2b3c4d.HEIC        one folder, only new and edited files
+<prefix>/library/2026/09/IMG_1234_1a2b3c4d.MOV         (Live Photo)
+<prefix>/.hongyan/index.json                            file → photo version (the sync progress)
+<prefix>/.hongyan/rounds/20260929T020000Z.json          what each sync uploaded
+
+Full copies
 <prefix>/snapshots/20260929T020000Z/manifest.json
 <prefix>/snapshots/20260929T020000Z/2026/09/IMG_1234_1a2b3c4d.HEIC
-<prefix>/snapshots/20260929T020000Z/2026/09/IMG_1234_1a2b3c4d.MOV         (Live Photo)
-<prefix>/snapshots/20260929T020000Z/2026/09/IMG_1234_1a2b3c4d_edited.HEIC
+```
+
+Each delta sync:
+
+```
+read index (local, else .hongyan/index.json) ─▶ list library/ ─▶ drop entries whose file is gone
+  ─▶ walk the photos: same version in index → skip · file in bucket, not in index → record
+                      new or edited → upload ─▶ index to bucket every 500 files ─▶ index + round record
 ```
 
 The suffix is a hash of the photo's library ID. It keeps each file name stable across
@@ -117,7 +132,8 @@ GitHub Actions is turned off (quota). Everything runs on a Mac with Xcode 26.1+ 
 
 ```
 scripts/mac.sh setup          → xcodegen + xcbeautify, generate Hongyan.xcodeproj
-scripts/mac.sh test           → 154 HongyanCore tests on an iPhone Simulator
+scripts/mac.sh test           → 177 HongyanCore tests on an iPhone Simulator
+scripts/mac.sh r2test         → the same engine against a real R2 bucket (HONGYAN_IT_* env)
 scripts/mac.sh build          → app + extension for Simulator and device (unsigned)
 scripts/mac.sh shots          → demo-mode screenshots into docs/gallery
 scripts/mac.sh release v0.3.0 → tests, unsigned IPA, tag, release page with notes from CHANGELOG.md

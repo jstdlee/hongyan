@@ -22,6 +22,7 @@ final class AppModel: ObservableObject {
     @Published var includeVideos = true { didSet { edited() } }
     @Published var includeLivePhotoVideos = true { didSet { edited() } }
     @Published var includeEdits = true { didSet { edited() } }
+    @Published var backupMode: BackupMode = .sync { didSet { edited() } }
 
     // Keep running (app-only settings, in the app's own UserDefaults)
     @Published var keepAwakeMode: KeepAwakeMode = .off {
@@ -200,6 +201,7 @@ final class AppModel: ObservableObject {
         includeVideos = settings.resources.includeVideos
         includeLivePhotoVideos = settings.resources.includeLivePhotoVideos
         includeEdits = settings.resources.includeEdits
+        backupMode = settings.backupMode
         let credentials = repository.loadCredentials()
         if let credentials {
             accessKeyID = credentials.accessKeyID
@@ -227,6 +229,7 @@ final class AppModel: ObservableObject {
         }
         settings.intervalDays = intervalDays
         settings.keepLatest = keepLatest
+        settings.mode = backupMode
         settings.resources = ResourcePolicy(includeVideos: includeVideos, includeLivePhotoVideos: includeLivePhotoVideos,
                                             includeEdits: includeEdits)
         if settings.s3 != nil {
@@ -397,16 +400,21 @@ final class AppModel: ObservableObject {
         demo.history = (1...3).map { week in
             let start = now.addingTimeInterval(-Double(week) * 7 * day)
             return SnapshotSummary(id: SnapshotID(date: start), startedAt: start,
-                                   completedAt: start.addingTimeInterval(5 * 3600),
-                                   assetCount: 8_412 - week * 37, uploadedFiles: 11_903 - week * 52,
-                                   failedFiles: week == 2 ? 1 : 0, skippedAssets: week == 3 ? 2 : 0)
+                                   completedAt: start.addingTimeInterval(week == 3 ? 5 * 3600 : 900),
+                                   assetCount: 8_412 - week * 37,
+                                   uploadedFiles: week == 3 ? 11_747 : 52 + week * 9,
+                                   failedFiles: week == 2 ? 1 : 0, skippedAssets: 0, mode: .sync,
+                                   unchangedFiles: week == 3 ? 0 : 11_851 - week * 61, adoptedFiles: 0,
+                                   missingRemote: week == 2 ? 1 : 0)
         }
         demo.lastCompleted = demo.history.first
         if scenario == "active" {
             let start = now.addingTimeInterval(-2 * 3600)
             var active = ActiveSnapshot(id: SnapshotID(date: start), startedAt: start, totalAssets: 8_431)
             active.cursor = PlanCursor(asset: 5_270, resource: 0)
-            active.uploadedCount = 7_388
+            active.uploadedCount = 38
+            active.mode = .sync
+            active.unchangedFiles = 7_350
             active.inFlight = Dictionary(uniqueKeysWithValues: (0..<40).map {
                 ("k\($0)", InFlightJob(assetID: "a\($0)", resource: ResourceInfo(kind: .photo, originalFilename: "x.heic", index: 0), attempts: 0))
             })
